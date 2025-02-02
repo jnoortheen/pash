@@ -73,3 +73,9 @@ jobs:
         run: |
           python -m pip install -e . --no-deps
           python -m xonsh tasks.py test --report-coverage -- --timeout=240
+      - uses: CodSpeedHQ/action@v3
+        if: ${{ startsWith(matrix.python-version, env.DEFAULT_PYTHON_VERSION) }}
+        with:
+          run: python -m xonsh tasks.py bench
+          token: ${{ secrets.CODSPEED_TOKEN }}
+        name: run benchmark

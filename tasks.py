@@ -47,11 +47,15 @@ def test(
         # during CI run, some tests take longer to complete on windows
         XSH.subproc_uncaptured(["pytest", *_replace_args(pytest_args, 0), "--durations=5"])
 
+def bench():
+    """Run pytest-codspeed based benchmarks."""
+    XSH.subproc_uncaptured(["pytest", "tests/bench.py", "--codspeed"])
 
 
 if __name__ == '__main__':
     parser = xcli.make_parser("test commands")
     parser.add_command(test)
+    parser.add_command(bench)
 
     try:
         xcli.dispatch(parser)
