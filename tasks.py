@@ -1,24 +1,21 @@
 #!/usr/bin/env xonsh
-import sys
+import itertools
 import subprocess
-from typing import List
+import sys
 
 import xonsh.cli_utils as xcli
-
+from xonsh.built_ins import XSH
 from xonsh.tools import print_color
-import itertools
 
-
-$RAISE_SUBPROC_ERROR = True
-# $XONSH_TRACE_SUBPROC = True
-
+XSH.env["RAISE_SUBPROC_ERROR"] = True
+XSH.env["COVERAGE_CORE"] = "sysmon"
 
 def colored_tracer(cmds, **_):
     cmd = " ".join(itertools.chain.from_iterable(cmds))
     print_color(f"{{GREEN}}$ {{BLUE}}{cmd}{{RESET}}", file=sys.stderr)
 
 
-def _replace_args(args: List[str], num: int) -> List[str]:
+def _replace_args(args: list[str], num: int) -> list[str]:
     return [
          (arg % num) if "%d" in arg else arg
          for arg in args
@@ -41,15 +38,14 @@ def test(
 
     Examples
     --------
-    `xonsh run-tests.xsh -- --junitxml=junit/test-results.%%d.xml`
+    `xonsh tasks.py -- --junitxml=junit/test-results.%%d.xml`
     """
 
     if report_cov:
-        $COVERAGE_CORE="sysmon"
-        ![pytest @(_replace_args(pytest_args, 0)) --cov --cov-report=xml --cov-report=term]
+        XSH.subproc_uncaptured(["pytest", *_replace_args(pytest_args, 0), "--cov", "--cov-report=xml", "--cov-report=term"])
     else:
         # during CI run, some tests take longer to complete on windows
-        ![pytest @(_replace_args(pytest_args, 0)) --durations=5]
+        XSH.subproc_uncaptured(["pytest", *_replace_args(pytest_args, 0), "--durations=5"])
 
 
 
