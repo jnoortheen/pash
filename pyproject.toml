@@ -121,6 +121,7 @@ test = [
     "pyte>=0.8.0",
     "virtualenv>=20.16.2",
     "requests",
+    "ptyprocess",
 ]
 dev = [
     "xonsh[test,doc]",
