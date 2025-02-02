@@ -114,6 +114,7 @@ test = [
     "pytest-timeout",
     "pytest-subprocess",
     "pytest-rerunfailures",
+    "pytest-codspeed",
     "prompt-toolkit>=3.0.29",
     "pygments>=2.2",
     "coverage>=5.3.1",
