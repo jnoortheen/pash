@@ -12,7 +12,7 @@ def test_script():
 def test_interactive_rl():
     import pexpect
 
-    proc = pexpect.spawn('xonsh --interactive --no-rc --shell=rl')
+    proc = pexpect.spawn("xonsh --interactive --no-rc --shell=rl")
     proc.expect(["@"])
     proc.sendline("echo 1")
     proc.expect("1")
