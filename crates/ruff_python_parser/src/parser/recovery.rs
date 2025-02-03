@@ -96,7 +96,7 @@ pub(super) fn pattern_to_expr(pattern: Pattern) -> Expr {
             },
         }),
         Pattern::MatchStar(ast::PatternMatchStar { range, name }) => {
-            if let Some(name) = name {
+            match name { Some(name) => {
                 Expr::Starred(ast::ExprStarred {
                     range,
                     value: Box::new(Expr::Name(ast::ExprName {
@@ -106,7 +106,7 @@ pub(super) fn pattern_to_expr(pattern: Pattern) -> Expr {
                     })),
                     ctx: ExprContext::Store,
                 })
-            } else {
+            } _ => {
                 Expr::Starred(ast::ExprStarred {
                     range,
                     value: Box::new(Expr::Name(ast::ExprName {
@@ -116,7 +116,7 @@ pub(super) fn pattern_to_expr(pattern: Pattern) -> Expr {
                     })),
                     ctx: ExprContext::Store,
                 })
-            }
+            }}
         }
         Pattern::MatchAs(ast::PatternMatchAs {
             range,

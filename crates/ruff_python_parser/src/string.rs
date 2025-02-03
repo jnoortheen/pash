@@ -840,7 +840,7 @@ mod tests {
     }
 
     macro_rules! test_aliases_parse {
-        ($($name:ident: $alias:expr,)*) => {
+        ($($name:ident: $alias:expr_2021,)*) => {
         $(
             #[test]
             fn $name() {

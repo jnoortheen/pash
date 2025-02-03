@@ -113,7 +113,7 @@ impl PyParser {
         let returnline = returnline.unwrap_or(false);
         let greedy = greedy.unwrap_or(false);
         let tokens = self.tokens(py, None).ok().unwrap_or_default();
-        let result = if let Some(range) = tokens.find_subproc_line(mincol, maxcol, greedy) {
+        let result = match tokens.find_subproc_line(mincol, maxcol, greedy) { Some(range) => {
             let line = format!("![{}]", &src[range]);
 
             if returnline {
@@ -127,9 +127,9 @@ impl PyParser {
             } else {
                 Some(line)
             }
-        } else {
+        } _ => {
             None
-        };
+        }};
         Ok(result)
     }
     /// Splits a string into a list of strings which are whitespace-separated tokens in proc mode.

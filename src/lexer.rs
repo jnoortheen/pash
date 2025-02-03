@@ -98,13 +98,13 @@ impl Token {
     }
     #[getter]
     fn get_value(&self, py: Python<'_>) -> PyResult<Option<&str>> {
-        if let Some(src) = &self.src {
+        match &self.src { Some(src) => {
             let src = src.to_str(py)?;
             let value = &src[self.range()];
             Ok(Some(value))
-        } else {
+        } _ => {
             Ok(None)
-        }
+        }}
     }
 }
 impl Ranged for Token {

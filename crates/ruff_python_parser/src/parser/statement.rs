@@ -969,13 +969,13 @@ impl<'src> Parser<'src> {
                     unparse_expr(parser, value, buffer);
                     buffer.push('[');
 
-                    if let Expr::NumberLiteral(ast::ExprNumberLiteral {
+                    match &**slice
+                    { Expr::NumberLiteral(ast::ExprNumberLiteral {
                         value: ast::Number::Int(integer),
                         ..
-                    }) = &**slice
-                    {
+                    }) => {
                         buffer.push_str(&format!("{integer}"));
-                    } else {
+                    } _ => {
                         parser.add_error(
                             ParseErrorType::OtherError(
                                 "Only integer literals are allowed in subscript expressions in help end escape command"
@@ -984,7 +984,7 @@ impl<'src> Parser<'src> {
                             slice.range(),
                         );
                         buffer.push_str(parser.src_text(slice.range()));
-                    }
+                    }}
 
                     buffer.push(']');
                 }
@@ -1955,10 +1955,10 @@ impl<'src> Parser<'src> {
         }
 
         if self.at(TokenKind::Lpar) {
-            if let Some(items) = self.try_parse_parenthesized_with_items() {
+            match self.try_parse_parenthesized_with_items() { Some(items) => {
                 self.expect(TokenKind::Rpar);
                 items
-            } else {
+            } _ => {
                 // test_ok ambiguous_lpar_with_items_if_expr
                 // with (x) if True else y: ...
                 // with (x for x in iter) if True else y: ...
@@ -1980,7 +1980,7 @@ impl<'src> Parser<'src> {
                     RecoveryContextKind::WithItems(WithItemKind::ParenthesizedExpression),
                     |p| p.parse_with_item(WithItemParsingState::Regular).item,
                 )
-            }
+            }}
         } else {
             self.parse_comma_separated_list_into_vec(
                 RecoveryContextKind::WithItems(WithItemKind::Unparenthesized),

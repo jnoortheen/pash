@@ -613,10 +613,10 @@ impl<'src> Parser<'src> {
             TokenKind::Lbrace => self.parse_set_or_dict_like_expression(),
 
             kind => {
-                if let Some((method, closing)) = SUBPROC_TOKENS.get(&kind) {
+                match SUBPROC_TOKENS.get(&kind) { Some((method, closing)) => {
                     self.bump_any(); // skip the `$(`
                     self.parse_subprocs((*method).to_string(), *closing)
-                } else if kind.is_keyword() {
+                } _ => if kind.is_keyword() {
                     Expr::Name(self.parse_name())
                 } else {
                     self.add_error(
@@ -628,7 +628,7 @@ impl<'src> Parser<'src> {
                         id: Name::empty(),
                         ctx: ExprContext::Invalid,
                     })
-                }
+                }}
             }
         };
 
@@ -735,12 +735,12 @@ impl<'src> Parser<'src> {
 
                 if parser.eat(TokenKind::Equal) {
                     seen_keyword_argument = true;
-                    let arg = if let Expr::Name(ident_expr) = parsed_expr.expr {
+                    let arg = match parsed_expr.expr { Expr::Name(ident_expr) => {
                         ast::Identifier {
                             id: ident_expr.id,
                             range: ident_expr.range,
                         }
-                    } else {
+                    } _ => {
                         // TODO(dhruvmanila): Parser shouldn't drop the `parsed_expr` if it's
                         // not a name expression. We could add the expression into `args` but
                         // that means the error is a missing comma instead.
@@ -752,7 +752,7 @@ impl<'src> Parser<'src> {
                             id: Name::empty(),
                             range: parsed_expr.range(),
                         }
-                    };
+                    }};
 
                     let value = parser.parse_conditional_expression_or_higher();
 

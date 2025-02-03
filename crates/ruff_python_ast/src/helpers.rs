@@ -630,13 +630,13 @@ pub fn extract_handled_exceptions(handlers: &[ExceptHandler]) -> Vec<&Expr> {
         match handler {
             ExceptHandler::ExceptHandler(ast::ExceptHandlerExceptHandler { type_, .. }) => {
                 if let Some(type_) = type_ {
-                    if let Expr::Tuple(tuple) = &**type_ {
+                    match &**type_ { Expr::Tuple(tuple) => {
                         for type_ in tuple {
                             handled_exceptions.push(type_);
                         }
-                    } else {
+                    } _ => {
                         handled_exceptions.push(type_);
-                    }
+                    }}
                 }
             }
         }

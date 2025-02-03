@@ -130,11 +130,11 @@ where
     U: std::ops::Deref<Target = T>,
     T: ToAst,
 {
-    if let Some(obj) = obj {
+    match obj { Some(obj) => {
         obj.deref().to_ast(module)
-    } else {
+    } _ => {
         module.empty_list()
-    }
+    }}
 }
 impl_to_ast!(StmtBreak, call "Break");
 impl_to_ast!(StmtPass, call "Pass");

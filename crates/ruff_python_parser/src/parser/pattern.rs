@@ -543,26 +543,26 @@ impl Parser<'_> {
             Operator::Sub
         };
 
-        let lhs_value = if let Pattern::MatchValue(lhs) = lhs {
+        let lhs_value = match lhs { Pattern::MatchValue(lhs) => {
             if !is_real_number(&lhs.value) {
                 self.add_error(ParseErrorType::ExpectedRealNumber, &lhs);
             }
             lhs.value
-        } else {
+        } _ => {
             self.add_error(ParseErrorType::ExpectedRealNumber, &lhs);
             Box::new(recovery::pattern_to_expr(lhs))
-        };
+        }};
 
         let rhs_pattern = self.parse_match_pattern_lhs(AllowStarPattern::No);
-        let rhs_value = if let Pattern::MatchValue(rhs) = rhs_pattern {
+        let rhs_value = match rhs_pattern { Pattern::MatchValue(rhs) => {
             if !is_complex_number(&rhs.value) {
                 self.add_error(ParseErrorType::ExpectedImaginaryNumber, &rhs);
             }
             rhs.value
-        } else {
+        } _ => {
             self.add_error(ParseErrorType::ExpectedImaginaryNumber, &rhs_pattern);
             Box::new(recovery::pattern_to_expr(rhs_pattern))
-        };
+        }};
 
         let range = self.node_range(start);
 
@@ -653,14 +653,14 @@ impl Parser<'_> {
                     has_seen_pattern = false;
                     has_seen_keyword_pattern = true;
 
-                    let key = if let Pattern::MatchAs(ast::PatternMatchAs {
+                    let key = match pattern
+                    { Pattern::MatchAs(ast::PatternMatchAs {
                         pattern: None,
                         name: Some(name),
                         ..
-                    }) = pattern
-                    {
+                    }) => {
                         name
-                    } else {
+                    } _ => {
                         parser.add_error(
                             ParseErrorType::OtherError(
                                 "Expected an identifier for the keyword pattern".to_string(),
@@ -671,7 +671,7 @@ impl Parser<'_> {
                             id: Name::empty(),
                             range: parser.missing_node_range(),
                         }
-                    };
+                    }};
 
                     let value_pattern = parser.parse_match_pattern(AllowStarPattern::No);
 
