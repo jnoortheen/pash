@@ -1,0 +1,41 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "oxipy"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dynamic = ["version"]
+description = "A Rust based, Interactive Python Shell"
+
+[dependency-groups]
+dev = [
+    "pip",
+    "pytest-subtests>=0.13.1",
+    "pytest>=8.2.2",
+    "maturin-import-hook>=0.1.0",
+    "pytest-codspeed",
+    "pytest-memray",
+    #    "pytest-insta",
+    "psutil",
+    "inline-snapshot",
+    "ruamel.yaml",
+]
+[tool.maturin]
+features = ["pyo3/extension-module"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+exclude = ["crates", "tests/data"]
+
+[tool.ruff.lint]
+ignore = [
+    "E402", # top level imports
+]

@@ -1,0 +1,213 @@
+---
+source: crates/ruff_python_parser/tests/fixtures.rs
+input_file: crates/ruff_python_parser/resources/invalid/expressions/compare/invalid_order.py
+snapshot_kind: text
+---
+## AST
+
+```
+Module(
+    ModModule {
+        range: 0..131,
+        body: [
+            Expr(
+                StmtExpr {
+                    range: 0..10,
+                    value: Compare(
+                        ExprCompare {
+                            range: 0..10,
+                            left: Name(
+                                ExprName {
+                                    range: 0..1,
+                                    id: Name("x"),
+                                    ctx: Load,
+                                },
+                            ),
+                            ops: [
+                                In,
+                            ],
+                            comparators: [
+                                UnaryOp(
+                                    ExprUnaryOp {
+                                        range: 5..10,
+                                        op: Not,
+                                        operand: Name(
+                                            ExprName {
+                                                range: 9..10,
+                                                id: Name("y"),
+                                                ctx: Load,
+                                            },
+                                        ),
+                                    },
+                                ),
+                            ],
+                        },
+                    ),
+                },
+            ),
+            Assign(
+                StmtAssign {
+                    range: 35..41,
+                    targets: [
+                        Name(
+                            ExprName {
+                                range: 35..36,
+                                id: Name("x"),
+                                ctx: Store,
+                            },
+                        ),
+                    ],
+                    value: Compare(
+                        ExprCompare {
+                            range: 38..41,
+                            left: Name(
+                                ExprName {
+                                    range: 38..38,
+                                    id: Name(""),
+                                    ctx: Invalid,
+                                },
+                            ),
+                            ops: [
+                                Gt,
+                            ],
+                            comparators: [
+                                Name(
+                                    ExprName {
+                                        range: 40..41,
+                                        id: Name("y"),
+                                        ctx: Load,
+                                    },
+                                ),
+                            ],
+                        },
+                    ),
+                },
+            ),
+            Expr(
+                StmtExpr {
+                    range: 122..130,
+                    value: Call(
+                        ExprCall {
+                            range: 122..130,
+                            func: Attribute(
+                                ExprAttribute {
+                                    range: 122..130,
+                                    value: Call(
+                                        ExprCall {
+                                            range: 122..130,
+                                            func: Attribute(
+                                                ExprAttribute {
+                                                    range: 122..125,
+                                                    value: Name(
+                                                        ExprName {
+                                                            range: 122..125,
+                                                            id: Name("__xonsh__"),
+                                                            ctx: Load,
+                                                        },
+                                                    ),
+                                                    attr: Identifier {
+                                                        id: Name("cmd"),
+                                                        range: 122..125,
+                                                    },
+                                                    ctx: Load,
+                                                },
+                                            ),
+                                            arguments: Arguments {
+                                                range: 122..130,
+                                                args: [
+                                                    StringLiteral(
+                                                        ExprStringLiteral {
+                                                            range: 122..125,
+                                                            value: StringLiteralValue {
+                                                                inner: Single(
+                                                                    StringLiteral {
+                                                                        range: 122..125,
+                                                                        value: "not",
+                                                                        flags: StringLiteralFlags {
+                                                                            quote_style: Single,
+                                                                            prefix: Empty,
+                                                                            triple_quoted: false,
+                                                                        },
+                                                                    },
+                                                                ),
+                                                            },
+                                                        },
+                                                    ),
+                                                    StringLiteral(
+                                                        ExprStringLiteral {
+                                                            range: 126..128,
+                                                            value: StringLiteralValue {
+                                                                inner: Single(
+                                                                    StringLiteral {
+                                                                        range: 126..128,
+                                                                        value: "is",
+                                                                        flags: StringLiteralFlags {
+                                                                            quote_style: Single,
+                                                                            prefix: Empty,
+                                                                            triple_quoted: false,
+                                                                        },
+                                                                    },
+                                                                ),
+                                                            },
+                                                        },
+                                                    ),
+                                                    StringLiteral(
+                                                        ExprStringLiteral {
+                                                            range: 129..130,
+                                                            value: StringLiteralValue {
+                                                                inner: Single(
+                                                                    StringLiteral {
+                                                                        range: 129..130,
+                                                                        value: "y",
+                                                                        flags: StringLiteralFlags {
+                                                                            quote_style: Single,
+                                                                            prefix: Empty,
+                                                                            triple_quoted: false,
+                                                                        },
+                                                                    },
+                                                                ),
+                                                            },
+                                                        },
+                                                    ),
+                                                ],
+                                                keywords: [],
+                                            },
+                                        },
+                                    ),
+                                    attr: Identifier {
+                                        id: Name("hide"),
+                                        range: 122..130,
+                                    },
+                                    ctx: Load,
+                                },
+                            ),
+                            arguments: Arguments {
+                                range: 122..130,
+                                args: [],
+                                keywords: [],
+                            },
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+)
+```
+## Errors
+
+  |
+1 | x in not y
+  |      ^^^^^ Syntax Error: Boolean 'not' expression cannot be used here
+2 | 
+3 | # `=>` instead of `>=`
+  |
+
+
+  |
+3 | # `=>` instead of `>=`
+4 | x => y
+  |    ^ Syntax Error: Expected an expression
+5 | 
+6 | # Same here as well, `not` without `in` is considered to be a unary operator
+  |

@@ -1,0 +1,119 @@
+cargo-features = ["codegen-backend"]
+
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.81"
+homepage = "https://docs.astral.sh/ruff"
+documentation = "https://docs.astral.sh/ruff"
+repository = "https://github.com/astral-sh/ruff"
+authors = ["Charlie Marsh <charlie.r.marsh@gmail.com>"]
+license = "MIT"
+
+[package]
+name = "xonsh-rd-parser"
+version = "1.5.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "xonsh_rd_parser"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { workspace = true }
+ruff_python_parser = { workspace = true }
+ruff_python_ast = { workspace = true }
+ruff_source_file = { workspace = true }
+py_ast = { workspace = true }
+ruff_text_size = { workspace = true }
+annotate-snippets = { workspace = true }
+bon = { workspace = true }
+
+[dev-dependencies]
+# insta = { workspace = true }
+
+[workspace.dependencies]
+ruff_cache = { git = "https://github.com/astral-sh/ruff.git" }
+ruff_macros = { git = "https://github.com/astral-sh/ruff.git" }
+ruff_python_ast = { path = "crates/ruff_python_ast" }
+py_ast = { path = "crates/py_ast" }
+ruff_python_parser = { path = "crates/ruff_python_parser" }
+ruff_python_trivia = { git = "https://github.com/astral-sh/ruff.git" }
+ruff_source_file = { git = "https://github.com/astral-sh/ruff.git" }
+ruff_text_size = { git = "https://github.com/astral-sh/ruff.git" }
+
+bon = { version = "*" }
+num-complex = { version = "*" }
+aho-corasick = { version = "1.1.3" }
+annotate-snippets = { version = "*", features = ["color"] }
+anyhow = { version = "1.0.80" }
+bitflags = { version = "2.5.0" }
+bstr = { version = "1.9.1" }
+compact_str = "0.8.0"
+insta = { version = "1.35.1" }
+is-macro = { version = "0.3.5" }
+itertools = { version = "0.13.0" }
+memchr = { version = "2.7.1" }
+pyo3 = { version = "0.23.*", features = [
+    "abi3-py310",
+    "experimental-inspect",
+    "num-complex",
+] }
+rustc-hash = { version = "2.0.0" }
+schemars = { version = "0.8.16" }
+serde = { version = "1.0.197", features = ["derive"] }
+static_assertions = "1.1.0"
+unicode-ident = { version = "1.0.12" }
+unicode_names2 = { version = "1.2.2" }
+unicode-normalization = { version = "0.1.23" }
+walkdir = { version = "2.3.2" }
+
+[workspace.lints.rust]
+#unsafe_code = "warn"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -2 }
+# Allowed pedantic lints
+char_lit_as_u8 = "allow"
+collapsible_else_if = "allow"
+collapsible_if = "allow"
+implicit_hasher = "allow"
+map_unwrap_or = "allow"
+match_same_arms = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+similar_names = "allow"
+too_many_lines = "allow"
+# To allow `#[allow(clippy::all)]` in `crates/ruff_python_parser/src/python.rs`.
+needless_raw_string_hashes = "allow"
+# Disallowed restriction lints
+print_stdout = "warn"
+print_stderr = "warn"
+dbg_macro = "warn"
+empty_drop = "warn"
+empty_structs_with_brackets = "warn"
+exit = "warn"
+get_unwrap = "warn"
+rc_buffer = "warn"
+rc_mutex = "warn"
+rest_pat_in_fully_bound_structs = "warn"
+
+
+# Enable a small amount of optimization in the dev profile.
+[profile.dev]
+#opt-level = 1
+#opt-level = 0
+#strip = "debuginfo"
+#codegen-backend = "cranelift"
+#split-debuginfo = "unpacked"
+
+[profile.dev.package]
+insta.opt-level = 3
+similar.opt-level = 3

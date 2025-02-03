@@ -1,0 +1,202 @@
+---
+source: crates/ruff_python_parser/tests/fixtures.rs
+input_file: crates/ruff_python_parser/resources/invalid/expressions/attribute/invalid_member.py
+snapshot_kind: text
+---
+## AST
+
+```
+Module(
+    ModModule {
+        range: 0..16,
+        body: [
+            Expr(
+                StmtExpr {
+                    range: 1..3,
+                    value: Call(
+                        ExprCall {
+                            range: 1..3,
+                            func: Attribute(
+                                ExprAttribute {
+                                    range: 1..3,
+                                    value: Call(
+                                        ExprCall {
+                                            range: 1..3,
+                                            func: Attribute(
+                                                ExprAttribute {
+                                                    range: 1..3,
+                                                    value: Name(
+                                                        ExprName {
+                                                            range: 1..3,
+                                                            id: Name("__xonsh__"),
+                                                            ctx: Load,
+                                                        },
+                                                    ),
+                                                    attr: Identifier {
+                                                        id: Name("cmd"),
+                                                        range: 1..3,
+                                                    },
+                                                    ctx: Load,
+                                                },
+                                            ),
+                                            arguments: Arguments {
+                                                range: 1..3,
+                                                args: [
+                                                    StringLiteral(
+                                                        ExprStringLiteral {
+                                                            range: 1..3,
+                                                            value: StringLiteralValue {
+                                                                inner: Single(
+                                                                    StringLiteral {
+                                                                        range: 1..3,
+                                                                        value: ".1",
+                                                                        flags: StringLiteralFlags {
+                                                                            quote_style: Single,
+                                                                            prefix: Empty,
+                                                                            triple_quoted: false,
+                                                                        },
+                                                                    },
+                                                                ),
+                                                            },
+                                                        },
+                                                    ),
+                                                ],
+                                                keywords: [],
+                                            },
+                                        },
+                                    ),
+                                    attr: Identifier {
+                                        id: Name("hide"),
+                                        range: 1..3,
+                                    },
+                                    ctx: Load,
+                                },
+                            ),
+                            arguments: Arguments {
+                                range: 1..3,
+                                args: [],
+                                keywords: [],
+                            },
+                        },
+                    ),
+                },
+            ),
+            Expr(
+                StmtExpr {
+                    range: 5..9,
+                    value: Call(
+                        ExprCall {
+                            range: 5..9,
+                            func: Attribute(
+                                ExprAttribute {
+                                    range: 5..9,
+                                    value: Call(
+                                        ExprCall {
+                                            range: 5..9,
+                                            func: Attribute(
+                                                ExprAttribute {
+                                                    range: 5..7,
+                                                    value: Name(
+                                                        ExprName {
+                                                            range: 5..7,
+                                                            id: Name("__xonsh__"),
+                                                            ctx: Load,
+                                                        },
+                                                    ),
+                                                    attr: Identifier {
+                                                        id: Name("cmd"),
+                                                        range: 5..7,
+                                                    },
+                                                    ctx: Load,
+                                                },
+                                            ),
+                                            arguments: Arguments {
+                                                range: 5..9,
+                                                args: [
+                                                    StringLiteral(
+                                                        ExprStringLiteral {
+                                                            range: 5..9,
+                                                            value: StringLiteralValue {
+                                                                inner: Single(
+                                                                    StringLiteral {
+                                                                        range: 5..9,
+                                                                        value: ".1.0",
+                                                                        flags: StringLiteralFlags {
+                                                                            quote_style: Single,
+                                                                            prefix: Empty,
+                                                                            triple_quoted: false,
+                                                                        },
+                                                                    },
+                                                                ),
+                                                            },
+                                                        },
+                                                    ),
+                                                ],
+                                                keywords: [],
+                                            },
+                                        },
+                                    ),
+                                    attr: Identifier {
+                                        id: Name("hide"),
+                                        range: 5..9,
+                                    },
+                                    ctx: Load,
+                                },
+                            ),
+                            arguments: Arguments {
+                                range: 5..9,
+                                args: [],
+                                keywords: [],
+                            },
+                        },
+                    ),
+                },
+            ),
+            Expr(
+                StmtExpr {
+                    range: 10..15,
+                    value: Subscript(
+                        ExprSubscript {
+                            range: 10..15,
+                            value: Attribute(
+                                ExprAttribute {
+                                    range: 10..12,
+                                    value: Name(
+                                        ExprName {
+                                            range: 10..11,
+                                            id: Name("x"),
+                                            ctx: Load,
+                                        },
+                                    ),
+                                    attr: Identifier {
+                                        id: Name(""),
+                                        range: 12..12,
+                                    },
+                                    ctx: Load,
+                                },
+                            ),
+                            slice: NumberLiteral(
+                                ExprNumberLiteral {
+                                    range: 13..14,
+                                    value: Int(
+                                        0,
+                                    ),
+                                },
+                            ),
+                            ctx: Load,
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+)
+```
+## Errors
+
+  |
+1 | x.1
+2 | x.1.0
+3 | x.[0]
+  |   ^ Syntax Error: Expected an identifier
+  |

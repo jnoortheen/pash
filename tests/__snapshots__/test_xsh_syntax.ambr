@@ -1,0 +1,163 @@
+# serializer version: 1
+# name: test_line_items[exprs-bg-0]
+  "__xonsh__.cmd('emacs', 'ugggh', bg=True).capture_out()"
+# ---
+# name: test_line_items[exprs-bg-1]
+  "__xonsh__.cmd('emacs', 'ugggh', bg=True).capture_out()"
+# ---
+# name: test_line_items[exprs-bg-2]
+  "__xonsh__.cmd('emacs', 'ugggh', bg=True).capture_out()"
+# ---
+# name: test_line_items[exprs-bg-3]
+  "__xonsh__.cmd('emacs', 'ugggh', bg=True).capture_out()"
+# ---
+# name: test_line_items[exprs-captured-0]
+  "__xonsh__.cmd('cmd', 'sub-cmd', '--opt').capture_out()"
+# ---
+# name: test_line_items[exprs-captured-1]
+  "__xonsh__.cmd('cmd', 'sub-cmd', '--opt').run()"
+# ---
+# name: test_line_items[exprs-combinators-0]
+  "__xonsh__.cmd('ls', '|', 'grep', 'wakka').capture_out()"
+# ---
+# name: test_line_items[exprs-combinators-1]
+  "__xonsh__.cmd('ls', '|', 'grep', 'wakka', '|', 'grep', 'jawaka').capture_out()"
+# ---
+# name: test_line_items[exprs-env-0]
+  "__xonsh__.env['WAKKA']"
+# ---
+# name: test_line_items[exprs-env-1]
+  "__xonsh__.env[None or __xonsh__.env['JAWAKA']]"
+# ---
+# name: test_line_items[exprs-globs-0]
+  "__xonsh__.regex_literal('hello')"
+# ---
+# name: test_line_items[exprs-globs-10]
+  "__xonsh__.cmd('ls', __xonsh__.regex_literal('[Ff]+i*LE'), 'l').capture_out()"
+# ---
+# name: test_line_items[exprs-globs-1]
+  "__xonsh__.cmd('ls', __xonsh__.regex_literal('#[Ff]+i*LE'), 'l').capture_out()"
+# ---
+# name: test_line_items[exprs-globs-2]
+  "__xonsh__.cmd('ls', '[Ff]+i*LE', '-l').capture_out()"
+# ---
+# name: test_line_items[exprs-globs-3]
+  "__xonsh__.cmd('ls', '#[Ff]+i*LE', '-l').capture_out()"
+# ---
+# name: test_line_items[exprs-globs-4]
+  "__xonsh__.cmd('ls', __xonsh__.glob_literal('[Ff]+i*LE'), 'l').capture_out()"
+# ---
+# name: test_line_items[exprs-globs-5]
+  "__xonsh__.cmd('ls', __xonsh__.glob_literal('#[Ff]+i*LE'), 'l').capture_out()"
+# ---
+# name: test_line_items[exprs-globs-6]
+  "__xonsh__.cmd('ls', '@foo`[Ff]+i*LE`', '-l').capture_out()"
+# ---
+# name: test_line_items[exprs-globs-8]
+  "__xonsh__.cmd('ls', '@foo`#[Ff]+i*LE`', '-l').capture_out()"
+# ---
+# name: test_line_items[exprs-path-literals-0]
+  "__xonsh__.path_literal('/foo')"
+# ---
+# name: test_line_items[exprs-path-literals-10]
+  "f'/foo{1 + 1}'"
+# ---
+# name: test_line_items[exprs-path-literals-11]
+  "f'/foo{1 + 1}'"
+# ---
+# name: test_line_items[exprs-path-literals-12]
+  "f'/foo{1 + 1}'"
+# ---
+# name: test_line_items[exprs-path-literals-1]
+  '"""/foo"""'
+# ---
+# name: test_line_items[exprs-path-literals-2]
+  '"""/foo"""'
+# ---
+# name: test_line_items[exprs-path-literals-3]
+  '"""/foo"""'
+# ---
+# name: test_line_items[exprs-path-literals-4]
+  '"""/foo"""'
+# ---
+# name: test_line_items[exprs-path-literals-5]
+  "f'/foo'"
+# ---
+# name: test_line_items[exprs-path-literals-6]
+  "f'/foo'"
+# ---
+# name: test_line_items[exprs-path-literals-7]
+  "f'/foo'"
+# ---
+# name: test_line_items[exprs-path-literals-8]
+  "f'/foo'"
+# ---
+# name: test_line_items[exprs-path-literals-9]
+  "f'/foo{1 + 1}'"
+# ---
+# name: test_line_items[exprs-redirects-0]
+  "__xonsh__.cmd('ls', '>>', 'x.py').capture_object()"
+# ---
+# name: test_line_items[exprs-redirects-1]
+  "__xonsh__.cmd('ls', '|', 'grep', 'wakka', '>', 'x.py').capture_object()"
+# ---
+# name: test_line_items[exprs-redirects-2]
+  "__xonsh__.cmd('ls', '|', 'grep', 'wakka', '>>', 'x.py').capture_object()"
+# ---
+# name: test_line_items[exprs-redirects-3]
+  "__xonsh__.cmd('ls', '>', 'x.py').capture_out()"
+# ---
+# name: test_line_items[exprs-redirects-4]
+  "__xonsh__.cmd('ls', '>>', 'x.py').capture_out()"
+# ---
+# name: test_line_items[exprs-redirects-5]
+  "__xonsh__.cmd('ls', '|', 'grep', 'wakka', '>', 'x.py').capture_out()"
+# ---
+# name: test_line_items[exprs-redirects-6]
+  "__xonsh__.cmd('ls', '|', 'grep', 'wakka', '>>', 'x.py').capture_out()"
+# ---
+# name: test_line_items[exprs-uncaptured-0]
+  "__xonsh__.cmd('cmd', 'sub-cmd', '--opt').run_hidden()"
+# ---
+# name: test_line_items[exprs-uncaptured-1]
+  "__xonsh__.cmd('cmd', 'sub-cmd', '--opt').capture_object()"
+# ---
+# name: test_line_items[exprs-uncaptured-6]
+  "__xonsh__.cmd('echo', '1,2').run_hidden()"
+# ---
+# name: test_line_items[exprs-uncaptured-7]
+  "__xonsh__.cmd('echo', '$foo').capture_object()"
+# ---
+# name: test_line_items[exprs-uncaptured-8]
+  "__xonsh__.cmd('echo', '$foo').capture_object()"
+# ---
+# name: test_line_items[stmts-assignments-0]
+  "__xonsh__.env['WAKKA']"
+# ---
+# name: test_line_items[stmts-assignments-10]
+  '__xonsh__.env[x] = 65'
+# ---
+# name: test_line_items[stmts-assignments-1]
+  "__xonsh__.env['y'] = 'one'"
+# ---
+# name: test_line_items[stmts-assignments-2]
+  "__xonsh__.env['WAKKA'] = 42"
+# ---
+# name: test_line_items[stmts-assignments-3]
+  "y = __xonsh__.env['x']"
+# ---
+# name: test_line_items[stmts-assignments-4]
+  'y = __xonsh__.env[x]'
+# ---
+# name: test_line_items[stmts-assignments-5]
+  "y = __xonsh__.env['x' + 'y']"
+# ---
+# name: test_line_items[stmts-assignments-6]
+  "__xonsh__.env[None or 'WAKKA']"
+# ---
+# name: test_line_items[stmts-assignments-7]
+  "__xonsh__.env[__xonsh__.env['JAWAKA']]"
+# ---
+# name: test_line_items[stmts-assignments-8]
+  "__xonsh__.env['WAKKA'] = 42"
+# ---
