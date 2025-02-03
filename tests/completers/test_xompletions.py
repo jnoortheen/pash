@@ -60,7 +60,4 @@ def test_module_matcher(tmp_path, xession):
     matcher = commands.ModuleFinder("xompletions", str(tmp_path))
     assert matcher.get_module("pip").xonsh_complete
     assert matcher.get_module("a0").xonsh_complete
-    # todo: fix *.xsh import
-    #  the import-hook returns None for some reason
-    #  -- xonsh/imphooks.py:247
     # assert matcher.get_module("a1").xonsh_complete

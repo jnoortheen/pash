@@ -16,7 +16,6 @@ from xonsh.codecache import run_code_with_cache, run_script_with_cache
 from xonsh.environ import get_home_xonshrc_path, make_args_env, xonshrc_context
 from xonsh.events import events
 from xonsh.execer import Execer
-from xonsh.imphooks import install_import_hooks
 from xonsh.lib.lazyasd import lazyobject
 from xonsh.lib.lazyimps import pyghooks, pygments
 from xonsh.lib.pretty import pretty
@@ -366,8 +365,6 @@ def start_services(shell_kwargs, args, pre_env=None):
     XSH.load(ctx=ctx, execer=execer, inherit_env=shell_kwargs.get("inherit_env", True))
     events.on_timingprobe.fire(name="post_xonsh_session_load")
 
-    install_import_hooks(execer)
-
     env = XSH.env
     for k, v in pre_env.items():
         env[k] = v
@@ -687,7 +684,6 @@ def setup(
         XSH.load(ctx=ctx, execer=execer)
         XSH.shell = Shell(execer, ctx=ctx, shell_type=shell_type)
     XSH.env.update(env)
-    install_import_hooks(XSH.execer)
     XSH.aliases.update(aliases)
     if xontribs:
         xontribs_load(xontribs)
