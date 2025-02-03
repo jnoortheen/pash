@@ -3,9 +3,9 @@ import pytest
 
 @pytest.mark.benchmark
 def test_script():
-    import subprocess as sp
+    from xonsh.main import premain
 
-    sp.run(["xonsh", "-c", "echo 1"])
+    premain(["-c", "echo 1"])
 
 
 @pytest.mark.benchmark

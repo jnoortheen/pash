@@ -47,9 +47,9 @@ def test(
         # during CI run, some tests take longer to complete on windows
         XSH.subproc_uncaptured(["pytest", *_replace_args(pytest_args, 0), "--durations=5"])
 
-def bench():
+def bench(pytest_args: xcli.Arg(nargs='*')=()):
     """Run pytest-codspeed based benchmarks."""
-    XSH.subproc_uncaptured(["pytest", "tests/bench.py", "--codspeed"])
+    XSH.subproc_uncaptured(["pytest", "tests/bench.py", "--codspeed", *pytest_args])
 
 
 if __name__ == '__main__':
