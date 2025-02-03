@@ -17,10 +17,58 @@ from typing import (
 )
 
 from xonsh.lib.lazyasd import lazyobject
-from xonsh.parsers.base import Location, raise_parse_error
 from xonsh.parsers.lexer import Lexer
 from xonsh.parsers.ply import yacc
 from xonsh.tools import check_for_partial_string, get_line_continuation
+
+
+class Location:
+    """Location in a file."""
+
+    def __init__(self, fname, lineno, column=None):
+        """Takes a filename, line number, and optionally a column number."""
+        self.fname = fname
+        self.lineno = lineno
+        self.column = column
+
+    def __str__(self):
+        s = f"{self.fname}:{self.lineno}"
+        if self.column is not None:
+            s += f":{self.column}"
+        return s
+
+
+def raise_parse_error(
+    msg: str | tuple[str],
+    loc: Location | None = None,
+    code: str | None = None,
+    lines: list[str] | None = None,
+):
+    err_line = None
+    if loc is None or code is None or lines is None:
+        err_line_pointer = ""
+    else:
+        col = loc.column + 1
+        if loc.lineno == 0:
+            loc.lineno = len(lines)
+        i = loc.lineno - 1
+        if 0 <= i < len(lines):
+            err_line = lines[i].rstrip()
+            err_line_pointer = "\n{}\n{: >{}}".format(err_line, "^", col)
+        else:
+            err_line_pointer = ""
+    err = SyntaxError(f"{loc}: {msg}{err_line_pointer}")
+    err.loc = loc  # type: ignore
+
+    # if loc is available, construct a proper SyntaxError with all fields
+    if loc:
+        err.msg = str(msg) if msg else ""
+        err.filename = loc.fname
+        err.lineno = loc.lineno
+        err.offset = loc.column
+        err.text = err_line
+
+    raise err
 
 
 class CommandArg(NamedTuple):
