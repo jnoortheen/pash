@@ -4,7 +4,6 @@ version = "0.0.0"
 publish = false
 authors = ["Charlie Marsh <charlie.r.marsh@gmail.com>", "RustPython Team"]
 edition = { workspace = true }
-rust-version = { workspace = true }
 homepage = { workspace = true }
 documentation = { workspace = true }
 repository = { workspace = true }

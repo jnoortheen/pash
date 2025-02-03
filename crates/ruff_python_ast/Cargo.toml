@@ -4,7 +4,6 @@ version = "0.0.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
-rust-version = { workspace = true }
 homepage = { workspace = true }
 documentation = { workspace = true }
 repository = { workspace = true }
@@ -33,10 +32,10 @@ serde = { workspace = true, optional = true }
 schemars = ["dep:schemars"]
 cache = ["dep:ruff_cache", "dep:ruff_macros"]
 serde = [
-  "dep:serde",
-  "ruff_text_size/serde",
-  "dep:ruff_cache",
-  "compact_str/serde",
+    "dep:serde",
+    "ruff_text_size/serde",
+    "dep:ruff_cache",
+    "compact_str/serde",
 ]
 
 [lints]
