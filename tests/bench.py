@@ -10,19 +10,21 @@ def test_script():
 
 @pytest.mark.benchmark
 def test_interactive_rl():
-    from ptyprocess import PtyProcessUnicode as pty
+    import pexpect
 
-    proc = pty.spawn(["xonsh", "--interactive", "--no-rc", "--shell=rl"])
-    proc.readline()
-    proc.write("echo 1\n")
+    proc = pexpect.spawn('xonsh --interactive --no-rc --shell=rl')
+    proc.expect(["@"])
+    proc.sendline("echo 1")
+    proc.expect("1")
     proc.terminate()
 
 
 @pytest.mark.benchmark
 def test_interactive_ptk():
-    from ptyprocess import PtyProcessUnicode as pty
+    import pexpect
 
-    proc = pty.spawn(["xonsh", "--interactive", "--no-rc", "--shell=ptk"])
-    proc.readline()
-    proc.write("echo 1\n")
+    proc = pexpect.spawn("xonsh --interactive --no-rc --shell=ptk")
+    proc.expect(["@"])
+    proc.sendline("echo 1")
+    proc.expect("1")
     proc.terminate()
