@@ -54,7 +54,7 @@ impl PyParser {
         })
     }
 
-    fn parse(&self, py: Python<'_>) -> PyResult<PyObject> {
+    fn parse(&self, py: Python<'_>) -> PyResult<PyObject>{
         let src = self.src(py)?;
         let parsed = self.parse_module(src)?;
         let line_index = LineIndex::from_source_text(src);
@@ -65,14 +65,14 @@ impl PyParser {
     }
 
     #[staticmethod]
-    fn parse_file(py: Python<'_>, path: &str) -> PyResult<PyObject> {
+    fn parse_file(py: Python<'_>, path: &str) -> PyResult<PyObject>{
         let src = std::fs::read_to_string(path).unwrap();
         let src = PyString::new(py, &src);
         PyParser::new(src, Some(path))?.parse(py)
     }
 
     #[pyo3(signature = (tolerant=false))]
-    fn tokens(&self, py: Python<'_>, tolerant: Option<bool>) -> PyResult<Vec<Token>> {
+    fn tokens(&self, py: Python<'_>, tolerant: Option<bool>) -> PyResult<Vec<Token>>{
         let src = self.src(py)?;
         let tolerant = tolerant.unwrap_or(false);
         let line_index = LineIndex::from_source_text(src);
@@ -106,7 +106,7 @@ impl PyParser {
         returnline: Option<bool>,
         greedy: Option<bool>,
         maxcol: Option<usize>,
-    ) -> PyResult<Option<String>> {
+    ) -> PyResult<Option<String>>{
         let src = self.src(py)?;
         let maxcol = maxcol.unwrap_or(src.len());
         let mincol = mincol.unwrap_or(-1);
@@ -133,7 +133,7 @@ impl PyParser {
         Ok(result)
     }
     /// Splits a string into a list of strings which are whitespace-separated tokens in proc mode.
-    fn split(&self, py: Python<'_>) -> PyResult<Vec<String>> {
+    fn split(&self, py: Python<'_>) -> PyResult<Vec<String>>{
         let src = self.src(py)?;
         let result = self.tokens(py, Some(true))?.split_ws(src);
         Ok(result)

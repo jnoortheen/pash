@@ -969,13 +969,12 @@ impl<'src> Parser<'src> {
                     unparse_expr(parser, value, buffer);
                     buffer.push('[');
 
-                    match &**slice
-                    { Expr::NumberLiteral(ast::ExprNumberLiteral {
+                    if let Expr::NumberLiteral(ast::ExprNumberLiteral {
                         value: ast::Number::Int(integer),
                         ..
-                    }) => {
+                    }) = &**slice {
                         buffer.push_str(&format!("{integer}"));
-                    } _ => {
+                    } else {
                         parser.add_error(
                             ParseErrorType::OtherError(
                                 "Only integer literals are allowed in subscript expressions in help end escape command"
@@ -984,7 +983,7 @@ impl<'src> Parser<'src> {
                             slice.range(),
                         );
                         buffer.push_str(parser.src_text(slice.range()));
-                    }}
+                    }
 
                     buffer.push(']');
                 }

@@ -2319,7 +2319,7 @@ impl BytesLiteralFlags {
                 self.0
                     .set(BytesLiteralFlagsInner::R_PREFIX_LOWER, !uppercase_r);
             }
-        };
+        }
         self
     }
 
@@ -2560,7 +2560,7 @@ impl AnyStringFlags {
         match quotes {
             Quote::Double => self.0 |= AnyStringFlagsInner::DOUBLE,
             Quote::Single => self.0 -= AnyStringFlagsInner::DOUBLE,
-        };
+        }
         self
     }
 
@@ -3295,7 +3295,7 @@ impl Pattern {
     pub fn is_wildcard(&self) -> bool {
         match self {
             Pattern::MatchAs(PatternMatchAs { pattern, .. }) => {
-                pattern.as_deref().map_or(true, Pattern::is_wildcard)
+                pattern.as_deref().is_none_or(Pattern::is_wildcard)
             }
             Pattern::MatchOr(PatternMatchOr { patterns, .. }) => {
                 patterns.iter().all(Pattern::is_wildcard)

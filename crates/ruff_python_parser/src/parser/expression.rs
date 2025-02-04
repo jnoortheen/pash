@@ -735,12 +735,12 @@ impl<'src> Parser<'src> {
 
                 if parser.eat(TokenKind::Equal) {
                     seen_keyword_argument = true;
-                    let arg = match parsed_expr.expr { Expr::Name(ident_expr) => {
+                    let arg = if let Expr::Name(ident_expr) = parsed_expr.expr {
                         ast::Identifier {
                             id: ident_expr.id,
                             range: ident_expr.range,
                         }
-                    } _ => {
+                    } else {
                         // TODO(dhruvmanila): Parser shouldn't drop the `parsed_expr` if it's
                         // not a name expression. We could add the expression into `args` but
                         // that means the error is a missing comma instead.
@@ -752,7 +752,7 @@ impl<'src> Parser<'src> {
                             id: Name::empty(),
                             range: parsed_expr.range(),
                         }
-                    }};
+                    };
 
                     let value = parser.parse_conditional_expression_or_higher();
 
@@ -1930,7 +1930,7 @@ impl<'src> Parser<'src> {
             self.expect(TokenKind::For);
         } else {
             self.bump(TokenKind::For);
-        };
+        }
 
         let mut target =
             self.parse_expression_list(ExpressionContext::starred_conditional().with_in_excluded());
