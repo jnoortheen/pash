@@ -13,13 +13,13 @@ authors = ["Charlie Marsh <charlie.r.marsh@gmail.com>"]
 license = "MIT"
 
 [package]
-name = "xonsh-rd-parser"
+name = "oxipy"
 version = "0.1.0"
 edition = { workspace = true }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "xonsh_rd_parser"
+name = "oxipy"
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -104,15 +104,38 @@ rc_buffer = "warn"
 rc_mutex = "warn"
 rest_pat_in_fully_bound_structs = "warn"
 
-
-# Enable a small amount of optimization in the dev profile.
-[profile.dev]
-#opt-level = 1
-#opt-level = 0
-#strip = "debuginfo"
-#codegen-backend = "cranelift"
-#split-debuginfo = "unpacked"
-
 [profile.dev.package]
 insta.opt-level = 3
 similar.opt-level = 3
+
+[profile.dev]
+opt-level = 0
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 4
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+
+[profile.test]
+opt-level = 1
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 4
+
+[profile.bench]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
