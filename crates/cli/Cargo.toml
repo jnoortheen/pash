@@ -1,0 +1,19 @@
+[package]
+name = "oxipy-cli"
+version = "0.1.0"
+edition.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+repository.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+argh = "0.1.12"
+shadow-rs = { version = "*" }
+
+[build-dependencies]
+shadow-rs = { version = "*" }
+
+[lints]
+workspace = true
