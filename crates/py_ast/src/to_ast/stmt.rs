@@ -108,20 +108,17 @@ impl ToAst for StmtFunctionDef {
         } else {
             module.attr("FunctionDef")?
         };
-        obj.call(
-            self.range,
-            [
-                (
-                    "name",
-                    self.name.as_str().to_owned().into_py_any(module.py)?,
-                ),
-                ("args", self.parameters.to_ast(module)?),
-                ("returns", self.returns.to_ast(module)?),
-                ("body", self.body.to_ast(module)?),
-                ("decorator_list", self.decorator_list.to_ast(module)?),
-                ("type_params", empty_vec(module, self.type_params.as_ref())?),
-            ],
-        )
+        obj.call(self.range, [
+            (
+                "name",
+                self.name.as_str().to_owned().into_py_any(module.py)?,
+            ),
+            ("args", self.parameters.to_ast(module)?),
+            ("returns", self.returns.to_ast(module)?),
+            ("body", self.body.to_ast(module)?),
+            ("decorator_list", self.decorator_list.to_ast(module)?),
+            ("type_params", empty_vec(module, self.type_params.as_ref())?),
+        ])
     }
 }
 
@@ -130,11 +127,10 @@ where
     U: std::ops::Deref<Target = T>,
     T: ToAst,
 {
-    match obj { Some(obj) => {
-        obj.deref().to_ast(module)
-    } _ => {
-        module.empty_list()
-    }}
+    match obj {
+        Some(obj) => obj.deref().to_ast(module),
+        _ => module.empty_list(),
+    }
 }
 impl_to_ast!(StmtBreak, call "Break");
 impl_to_ast!(StmtPass, call "Pass");
@@ -175,15 +171,12 @@ impl ToAst for StmtFor {
         } else {
             module.attr("For")?
         };
-        cls.call(
-            self.range,
-            [
-                ("target", self.target.to_ast(module)?),
-                ("iter", self.iter.to_ast(module)?),
-                ("body", self.body.to_ast(module)?),
-                ("orelse", self.orelse.to_ast(module)?),
-            ],
-        )
+        cls.call(self.range, [
+            ("target", self.target.to_ast(module)?),
+            ("iter", self.iter.to_ast(module)?),
+            ("body", self.body.to_ast(module)?),
+            ("orelse", self.orelse.to_ast(module)?),
+        ])
     }
 }
 
@@ -228,14 +221,11 @@ impl ToAst for Vec<ElifElseClause> {
         let (first, rest) = self.split_first().unwrap();
 
         if first.test.is_some() {
-            let obj = module.attr("If")?.call(
-                first.range,
-                [
-                    ("test", first.test.to_ast(module)?),
-                    ("body", first.body.to_ast(module)?),
-                    ("orelse", rest.to_vec().to_ast(module)?),
-                ],
-            );
+            let obj = module.attr("If")?.call(first.range, [
+                ("test", first.test.to_ast(module)?),
+                ("body", first.body.to_ast(module)?),
+                ("orelse", rest.to_vec().to_ast(module)?),
+            ]);
             Ok(vec![obj?].into_py_any(module.py)?)
         } else {
             first.body.to_ast(module)
@@ -276,30 +266,24 @@ impl ToAst for StmtTry {
         } else {
             module.attr("Try")?
         };
-        cls.call(
-            self.range,
-            [
-                ("body", self.body.to_ast(module)?),
-                ("handlers", self.handlers.to_ast(module)?),
-                ("orelse", self.orelse.to_ast(module)?),
-                ("finalbody", self.finalbody.to_ast(module)?),
-            ],
-        )
+        cls.call(self.range, [
+            ("body", self.body.to_ast(module)?),
+            ("handlers", self.handlers.to_ast(module)?),
+            ("orelse", self.orelse.to_ast(module)?),
+            ("finalbody", self.finalbody.to_ast(module)?),
+        ])
     }
 }
 impl ToAst for StmtClassDef {
     fn to_ast(&self, module: &AstModule) -> PyResult {
-        module.attr("ClassDef")?.call(
-            self.range,
-            [
-                ("name", self.name.to_ast(module)?),
-                ("bases", self.bases().to_ast(module)?),
-                ("keywords", self.keywords().to_ast(module)?),
-                ("body", self.body.to_ast(module)?),
-                ("decorator_list", self.decorator_list.to_ast(module)?),
-                ("type_params", empty_vec(module, self.type_params.as_ref())?),
-            ],
-        )
+        module.attr("ClassDef")?.call(self.range, [
+            ("name", self.name.to_ast(module)?),
+            ("bases", self.bases().to_ast(module)?),
+            ("keywords", self.keywords().to_ast(module)?),
+            ("body", self.body.to_ast(module)?),
+            ("decorator_list", self.decorator_list.to_ast(module)?),
+            ("type_params", empty_vec(module, self.type_params.as_ref())?),
+        ])
     }
 }
 impl ToAst for Decorator {
@@ -311,10 +295,14 @@ impl_to_ast!(StmtAssign, call "Assign" with fields [
     targets,
     value
 ]);
-impl_to_ast!(WithItem, call "withitem" with fields [
-    context_expr,
-    optional_vars
-]);
+impl ToAst for WithItem {
+    fn to_ast(&self, module: &AstModule) -> PyResult {
+        module.attr("withitem")?.callk([
+            ("context_expr", self.context_expr.to_ast(module)?),
+            ("optional_vars", self.optional_vars.to_ast(module)?),
+        ])
+    }
+}
 impl ToAst for StmtWith {
     fn to_ast(&self, module: &AstModule) -> PyResult {
         let cls = if self.is_async {
@@ -322,13 +310,10 @@ impl ToAst for StmtWith {
         } else {
             module.attr("With")?
         };
-        cls.call(
-            self.range,
-            [
-                ("items", self.items.to_ast(module)?),
-                ("body", self.body.to_ast(module)?),
-            ],
-        )
+        cls.call(self.range, [
+            ("items", self.items.to_ast(module)?),
+            ("body", self.body.to_ast(module)?),
+        ])
     }
 }
 impl_to_ast!(StmtDelete, call "Delete" with fields [
@@ -340,14 +325,11 @@ impl_to_ast!(StmtMatch, call "Match" with |self, module| {
 });
 impl ToAst for StmtTypeAlias {
     fn to_ast(&self, module: &AstModule) -> PyResult {
-        module.attr("TypeAlias")?.call(
-            self.range,
-            [
-                ("name", self.name.to_ast(module)?),
-                ("type_params", empty_vec(module, self.type_params.as_ref())?),
-                ("value", self.value.to_ast(module)?),
-            ],
-        )
+        module.attr("TypeAlias")?.call(self.range, [
+            ("name", self.name.to_ast(module)?),
+            ("type_params", empty_vec(module, self.type_params.as_ref())?),
+            ("value", self.value.to_ast(module)?),
+        ])
     }
 }
 impl ToAst for ModModule {
