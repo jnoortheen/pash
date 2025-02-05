@@ -12,9 +12,13 @@ build = "build.rs"
 [dependencies]
 clap = { version = "*", features = ["derive", "cargo", "wrap_help"] }
 clap-verbosity-flag = "*"
+serde = { workspace = true, features = ["derive"] }
 
 [build-dependencies]
 built = { version = "0.7", features = ["git2"] }
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+insta = {workspace = true, features = ["yaml"]}

@@ -570,6 +570,7 @@ dependencies = [
  "globset",
  "lazy_static",
  "linked-hash-map",
+ "serde",
  "similar",
  "walkdir",
 ]
@@ -749,6 +750,8 @@ dependencies = [
  "built",
  "clap",
  "clap-verbosity-flag",
+ "insta",
+ "serde",
 ]
 
 [[package]]

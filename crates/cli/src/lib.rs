@@ -1,4 +1,7 @@
-use clap::{Parser, arg, crate_version};
+#[cfg(test)]
+mod lib_test;
+
+use clap::{Parser, arg};
 use clap_verbosity_flag::{Verbosity, WarnLevel};
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -40,11 +43,11 @@ pub struct Cli {
     verbose: Verbosity<WarnLevel>,
 
     /// If present, execute the script in script-file and exit
-    #[arg(group = "script")]
+    #[arg()]
     script_file: Option<PathBuf>,
 
     /// Additional arguments to the script specified by script-file
-    #[arg(group = "script")]
+    #[arg()]
     args: Vec<String>,
 }
 
