@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 @pytest.fixture
 def parse_string():
-    from xonsh_rd_parser import Parser
+    from oxipy import Parser
 
     def factory(text: str):
         return Parser(text).parse()
@@ -31,7 +31,7 @@ def parse_string():
 
 @pytest.fixture
 def parse_file():
-    from xonsh_rd_parser import Parser
+    from oxipy import Parser
 
     def factory(path: str):
         return Parser.parse_file(path)

@@ -26,7 +26,7 @@ impl From<PyParseError<'_>> for PyErr {
 
 type ParseResult = PyResult<Parsed<ModModule>>;
 
-#[pyclass(name = "Parser", module = "xonsh_rd_parser")]
+#[pyclass(name = "Parser", module = "oxipy")]
 pub struct PyParser {
     src: Py<PyString>,
     file: String,
@@ -54,7 +54,7 @@ impl PyParser {
         })
     }
 
-    fn parse(&self, py: Python<'_>) -> PyResult<PyObject>{
+    fn parse(&self, py: Python<'_>) -> PyResult<PyObject> {
         let src = self.src(py)?;
         let parsed = self.parse_module(src)?;
         let line_index = LineIndex::from_source_text(src);
@@ -65,14 +65,14 @@ impl PyParser {
     }
 
     #[staticmethod]
-    fn parse_file(py: Python<'_>, path: &str) -> PyResult<PyObject>{
+    fn parse_file(py: Python<'_>, path: &str) -> PyResult<PyObject> {
         let src = std::fs::read_to_string(path).unwrap();
         let src = PyString::new(py, &src);
         PyParser::new(src, Some(path))?.parse(py)
     }
 
     #[pyo3(signature = (tolerant=false))]
-    fn tokens(&self, py: Python<'_>, tolerant: Option<bool>) -> PyResult<Vec<Token>>{
+    fn tokens(&self, py: Python<'_>, tolerant: Option<bool>) -> PyResult<Vec<Token>> {
         let src = self.src(py)?;
         let tolerant = tolerant.unwrap_or(false);
         let line_index = LineIndex::from_source_text(src);
@@ -106,34 +106,35 @@ impl PyParser {
         returnline: Option<bool>,
         greedy: Option<bool>,
         maxcol: Option<usize>,
-    ) -> PyResult<Option<String>>{
+    ) -> PyResult<Option<String>> {
         let src = self.src(py)?;
         let maxcol = maxcol.unwrap_or(src.len());
         let mincol = mincol.unwrap_or(-1);
         let returnline = returnline.unwrap_or(false);
         let greedy = greedy.unwrap_or(false);
         let tokens = self.tokens(py, None).ok().unwrap_or_default();
-        let result = match tokens.find_subproc_line(mincol, maxcol, greedy) { Some(range) => {
-            let line = format!("![{}]", &src[range]);
+        let result = match tokens.find_subproc_line(mincol, maxcol, greedy) {
+            Some(range) => {
+                let line = format!("![{}]", &src[range]);
 
-            if returnline {
-                let line = format!(
-                    "{}{}{}",
-                    &src[..range.start().to_usize()],
-                    line,
-                    &src[range.end().to_usize()..]
-                );
-                Some(line)
-            } else {
-                Some(line)
+                if returnline {
+                    let line = format!(
+                        "{}{}{}",
+                        &src[..range.start().to_usize()],
+                        line,
+                        &src[range.end().to_usize()..]
+                    );
+                    Some(line)
+                } else {
+                    Some(line)
+                }
             }
-        } _ => {
-            None
-        }};
+            _ => None,
+        };
         Ok(result)
     }
     /// Splits a string into a list of strings which are whitespace-separated tokens in proc mode.
-    fn split(&self, py: Python<'_>) -> PyResult<Vec<String>>{
+    fn split(&self, py: Python<'_>) -> PyResult<Vec<String>> {
         let src = self.src(py)?;
         let result = self.tokens(py, Some(true))?.split_ws(src);
         Ok(result)

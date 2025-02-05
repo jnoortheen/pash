@@ -1,5 +1,5 @@
 import pytest
-from xonsh_rd_parser import Parser
+from oxipy import Parser
 
 INDENT = "    "
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from xonsh_rd_parser import Parser
+from oxipy import Parser
 from inline_snapshot import snapshot
 
 LEXER_ARGS = {"lextab": "lexer_test_table", "debug": 0}
@@ -157,11 +157,7 @@ def test_not_really_or_pre_post():
 
 
 def test_subproc_line_cont_space():
-    inp = (
-        "![echo --option1 value1 \\\n"
-        "     --option2 value2 \\\n"
-        "     --optionZ valueZ]"
-    )
+    inp = "![echo --option1 value1 \\\n     --option2 value2 \\\n     --optionZ valueZ]"
     assert lex_input(inp) == snapshot(
         [
             ("BangLSqb", "0..2", "!["),
@@ -184,11 +180,7 @@ def test_subproc_line_cont_space():
 
 
 def test_subproc_line_cont_nospace():
-    inp = (
-        "![echo --option1 value1\\\n"
-        "     --option2 value2\\\n"
-        "     --optionZ valueZ]"
-    )
+    inp = "![echo --option1 value1\\\n     --option2 value2\\\n     --optionZ valueZ]"
     assert lex_input(inp) == snapshot(
         [
             ("BangLSqb", "0..2", "!["),

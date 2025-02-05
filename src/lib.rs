@@ -7,8 +7,8 @@ mod parser_test;
 use pyo3::prelude::*;
 
 /// A Python module implemented in Rust.
-#[pymodule]
-mod xonsh_rd_parser {
+#[pymodule(name = "_oxipy")]
+mod oxipy {
     use super::*;
 
     #[pymodule_export]

@@ -28,6 +28,7 @@ dev = [
 ]
 [tool.maturin]
 features = ["pyo3/extension-module"]
+module-name = "oxipy._oxipy"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

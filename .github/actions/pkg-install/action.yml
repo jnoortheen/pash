@@ -25,5 +25,5 @@ runs:
         name: ${{ inputs.dist-name }}
         path: dist
     - name: install project wheel
-      run: uv pip install xonsh_rd_parser --find-links dist
+      run: uv pip install oxipy --find-links dist
       shell: bash

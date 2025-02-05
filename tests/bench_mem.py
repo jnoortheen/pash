@@ -44,7 +44,7 @@ def main():
     #   rss         :         19 MiB
     #   vms         :     401474 MiB
     #   maxrss      :         19 MiB
-    from xonsh_rd_parser import Parser
+    from oxipy import Parser
 
     src_txt = "print(1)"
     ast = Parser(src_txt).parse()
