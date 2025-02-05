@@ -1,3 +1,3 @@
 fn main() {
-    shadow_rs::ShadowBuilder::builder().build().unwrap();
+    built::write_built_file().expect("Failed to acquire build-time information");
 }

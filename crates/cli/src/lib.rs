@@ -1,21 +1,60 @@
-use argh::FromArgs;
+use clap::{Parser, arg, crate_version};
+use clap_verbosity_flag::{Verbosity, WarnLevel};
+use std::ffi::OsString;
+use std::path::PathBuf;
 
-use shadow_rs::shadow;
+#[allow(dead_code)]
+pub mod built {
+    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
 
-shadow!(build);
+#[derive(Parser, Debug)]
+#[command(
+    name = "oxipy",
+    about = "An interactive Python environment with shell flavor.",
+    version = built::GIT_VERSION,
+    no_binary_name = true,
+)]
+pub struct Cli {
+    /// program passed in as string
+    #[arg(short = 'c')]
+    pub command: Option<String>,
 
-/// Program description for your CLI tool
-#[derive(FromArgs)]
-struct Args {
-    /// path to the configuration file
-    #[argh(option)]
-    config: Option<String>,
+    /// The RC files to load, these may be either xonsh files or directories containing xonsh files
+    #[arg(long)]
+    pub rc: Option<Vec<PathBuf>>,
 
-    /// verbose output mode
-    #[argh(switch)]
-    verbose: bool,
+    /// Do not load any RC files. Argument --rc will be ignored if --no-rc is set
+    #[arg(long)]
+    pub no_rc: bool,
 
-    /// an optional subcommand
-    #[argh(subcommand)]
-    command: Option<SubCommands>,
+    /// Do not inherit program specific environment variables from parent process
+    #[arg(long)]
+    pub no_env: bool,
+
+    /// Define an environment variable, in the form of -DNAME=VAL. May be used many times
+    #[arg(short = 'D')]
+    pub defines: Option<Vec<String>>,
+
+    #[command(flatten)]
+    verbose: Verbosity<WarnLevel>,
+
+    /// If present, execute the script in script-file and exit
+    #[arg(group = "script")]
+    script_file: Option<PathBuf>,
+
+    /// Additional arguments to the script specified by script-file
+    #[arg(group = "script")]
+    args: Vec<String>,
+}
+
+impl Cli {
+    pub fn main<I, T>(args: I)
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        let cli = Cli::parse_from(args);
+        println!("Running with args: {:?}", cli);
+    }
 }

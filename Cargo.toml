@@ -31,6 +31,8 @@ py_ast = { workspace = true }
 ruff_text_size = { workspace = true }
 annotate-snippets = { workspace = true }
 bon = { workspace = true }
+oxipy-cli = { workspace = true }
+pyo3-built = "*"
 
 [dev-dependencies]
 # insta = { workspace = true }
@@ -44,6 +46,7 @@ ruff_python_parser = { path = "crates/ruff_python_parser" }
 ruff_python_trivia = { git = "https://github.com/astral-sh/ruff.git" }
 ruff_source_file = { git = "https://github.com/astral-sh/ruff.git" }
 ruff_text_size = { git = "https://github.com/astral-sh/ruff.git" }
+oxipy-cli = { path = "crates/cli" }
 
 bon = { version = "*" }
 num-complex = { version = "*" }

@@ -7,13 +7,14 @@ documentation.workspace = true
 repository.workspace = true
 authors.workspace = true
 license.workspace = true
+build = "build.rs"
 
 [dependencies]
-argh = "0.1.12"
-shadow-rs = { version = "*" }
+clap = { version = "*", features = ["derive", "cargo", "wrap_help"] }
+clap-verbosity-flag = "*"
 
 [build-dependencies]
-shadow-rs = { version = "*" }
+built = { version = "0.7", features = ["git2"] }
 
 [lints]
 workspace = true
