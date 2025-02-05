@@ -1,15 +1,14 @@
 """Tests the xonsh parser."""
 
 import pytest
+from pathlib import Path
 
-from yaml_snaps import yaml_line_items
+data = Path(__file__).parent.joinpath("data")
 
 
-@pytest.mark.parametrize(
-    "inp, snapped", yaml_line_items("exprs", "stmts"), indirect=["snapped"]
-)
-def test_line_items(inp, unparse, snapped):
-    snapped.matches(unparse(inp))
+@pytest.mark.yaml_snaps(data / "exprs.yml", data / "stmts.yml")
+def test_line_items(snap, unparse):
+    snap.matches(unparse(snap.inp))
 
 
 @pytest.mark.parametrize(

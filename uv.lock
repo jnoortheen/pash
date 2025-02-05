@@ -1,6 +1,12 @@
 version = 1
 requires-python = ">=3.10"
 
+[manifest]
+members = [
+    "oxipy",
+    "pytest-yaml-snaps",
+]
+
 [[package]]
 name = "asttokens"
 version = "3.0.0"
@@ -383,6 +389,7 @@ dev = [
     { name = "pytest-codspeed" },
     { name = "pytest-memray" },
     { name = "pytest-subtests" },
+    { name = "pytest-yaml-snaps" },
     { name = "ruamel-yaml" },
 ]
 
@@ -398,6 +405,7 @@ dev = [
     { name = "pytest-codspeed" },
     { name = "pytest-memray" },
     { name = "pytest-subtests", specifier = ">=0.13.1" },
+    { name = "pytest-yaml-snaps", editable = "packages/pytest-yaml-snaps" },
     { name = "ruamel-yaml" },
 ]
 
@@ -542,6 +550,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/8e/39/8c0a9e34860798b88
 wheels = [
     { url = "https://files.pythonhosted.org/packages/08/f7/39bfd95b0367a9ca2a04087ff631592a472d9cb7564cdb3e13a42d9ae6b1/pytest_subtests-0.14.0-py3-none-any.whl", hash = "sha256:7343f2efd90026998d8fe50fe9798cf54c5f00e162584ba4ce8d7658d2c6ed3e", size = 8720 },
 ]
+
+[[package]]
+name = "pytest-yaml-snaps"
+version = "0.1.0"
+source = { editable = "packages/pytest-yaml-snaps" }
 
 [[package]]
 name = "rich"

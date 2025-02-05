@@ -25,6 +25,7 @@ dev = [
     "psutil",
     "inline-snapshot",
     "ruamel.yaml",
+    "pytest-yaml-snaps",
 ]
 [tool.maturin]
 features = ["pyo3/extension-module"]
@@ -40,3 +41,9 @@ exclude = ["crates", "tests/data"]
 ignore = [
     "E402", # top level imports
 ]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+pytest-yaml-snaps = { workspace = true }

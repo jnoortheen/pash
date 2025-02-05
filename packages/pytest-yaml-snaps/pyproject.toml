@@ -1,0 +1,18 @@
+[project]
+name = "pytest-yaml-snaps"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Noortheen Raja", email = "jnoortheen@gmail.com" }]
+requires-python = ">=3.10"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.entry-points]
+pytest11 = { yaml-snaps = "yaml_snaps" }
+
+[tool.hatch.build]
+include = ["yaml_snaps.py"] # Only include this file in the package

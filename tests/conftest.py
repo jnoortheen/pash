@@ -152,7 +152,3 @@ def cmd(exec_code):
         return xsh.cmd.result
 
     return factory
-
-
-# configure plugins
-pytest_plugins = ["yaml_snaps"]
