@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-data = Path(__file__).parent.joinpath("data")
+data = Path(__file__).parent.parent.joinpath("data")
 
 
 @pytest.mark.yaml_snaps(data / "exprs.yml", data / "stmts.yml")

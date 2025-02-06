@@ -59,8 +59,9 @@ def get_cases(path: Path):
 def get_files_from_markers(markers: list):
     for mark in markers:
         for path in mark.args:
-            if os.path.isfile(path):
-                yield from get_cases(Path(path))
+            if not os.path.isfile(path):
+                raise FileNotFoundError(f"File {path} does not exist")
+            yield from get_cases(Path(path))
 
 
 def pytest_generate_tests(metafunc):
@@ -71,9 +72,7 @@ def pytest_generate_tests(metafunc):
             return
 
         test_cases = list(get_files_from_markers(markers))
-        if test_cases:
-            print(len(test_cases), test_cases)
-            metafunc.parametrize("snap", test_cases)
+        metafunc.parametrize("snap", test_cases)
 
 
 def pytest_addoption(parser):
