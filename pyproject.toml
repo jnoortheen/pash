@@ -26,6 +26,8 @@ dev = [
     "inline-snapshot",
     "ruamel.yaml",
     "pytest-yaml-snaps",
+    "pexpect; sys.platform != 'win32'",
+    "wexpect; sys.platform == 'win32'"
 ]
 [tool.maturin]
 features = ["pyo3/extension-module"]

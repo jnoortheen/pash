@@ -23,13 +23,13 @@ pub struct Cli {
     #[arg(short = 'c')]
     pub command: Option<String>,
 
-    /// The RC files to load, these may be either xonsh files or directories containing xonsh files
-    #[arg(long)]
-    pub rc: Option<Vec<PathBuf>>,
+    // /// The RC files to load, these may be either xonsh files or directories containing xonsh files
+    // #[arg(long)]
+    // pub rc: Option<Vec<PathBuf>>,
 
-    /// Do not load any RC files. Argument --rc will be ignored if --no-rc is set
-    #[arg(long)]
-    pub no_rc: bool,
+    // /// Do not load any RC files. Argument --rc will be ignored if --no-rc is set
+    // #[arg(long)]
+    // pub no_rc: bool,
 
     /// Do not inherit program specific environment variables from parent process
     #[arg(long)]
@@ -42,22 +42,32 @@ pub struct Cli {
     #[command(flatten)]
     verbose: Verbosity<WarnLevel>,
 
-    /// If present, execute the script in script-file and exit
-    #[arg()]
-    script_file: Option<PathBuf>,
+    // /// If present, execute the script in script-file and exit
+    // #[arg()]
+    // script_file: Option<PathBuf>,
 
-    /// Additional arguments to the script specified by script-file
-    #[arg()]
-    args: Vec<String>,
+    // /// Additional arguments to the script specified by script-file
+    // #[arg()]
+    // args: Vec<String>,
 }
 
 impl Cli {
     pub fn main<I, T>(args: I)
     where
-        I: IntoIterator<Item = T>,
+        I: IntoIterator<Item = T> + std::fmt::Debug,
         T: Into<OsString> + Clone,
     {
         let cli = Cli::parse_from(args);
-        println!("Running with args: {:?}", cli);
+        env_logger::Builder::new()
+        .filter_level(cli.verbose.log_level_filter())
+        .init();
+
+        if let Some(script_file) = cli.script_file {
+            log::info!("Running script: {}", script_file.display());
+        } else if let Some(command) = cli.command {
+            log::info!("Running command: {}", command);
+        } else {
+            log::info!("Starting interactive shell");
+        }
     }
 }

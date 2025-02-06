@@ -13,6 +13,8 @@ build = "build.rs"
 clap = { version = "*", features = ["derive", "cargo", "wrap_help"] }
 clap-verbosity-flag = "*"
 serde = { workspace = true, features = ["derive"] }
+env_logger = "*"
+log = "*"
 
 [build-dependencies]
 built = { version = "0.7", features = ["git2"] }
