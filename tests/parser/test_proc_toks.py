@@ -25,20 +25,6 @@ def test_subproc_toks(inp, end):
     assert subproc_toks(inp + end, returnline=True) == exp
 
 
-def test_bash_macro():
-    s = "bash -c ! export var=42; echo $var"
-    exp = f"![{s}]\n"
-    obs = subproc_toks(s + "\n", returnline=True)
-    assert exp == obs
-
-
-def test_python_macro():
-    s = 'python -c ! import os; print(os.path.abspath("/"))'
-    exp = f"![{s}]\n"
-    obs = subproc_toks(s + "\n", returnline=True)
-    assert exp == obs
-
-
 def test_subproc_toks_indent_ls():
     s = "ls -l"
     exp = INDENT + f"![{s}]"

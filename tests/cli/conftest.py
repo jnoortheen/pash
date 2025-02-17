@@ -18,7 +18,7 @@ def process(is_windows):
 
     def call(*args, **kwargs):
         if is_windows:
-            import wexpect
+            import wexpect  # type: ignore
 
             child = wexpect.spawn(*args, **kwargs)
         else:

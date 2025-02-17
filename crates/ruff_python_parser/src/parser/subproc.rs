@@ -114,7 +114,6 @@ impl Parser<'_> {
 
         match kind {
             TokenKind::At => self.parse_decorator_or_interpolation(),
-            tk if tk.is_macro() => self.parse_proc_macro(closing),
             TokenKind::String
             | TokenKind::FStringStart
             | TokenKind::Lpar
@@ -193,49 +192,35 @@ impl Parser<'_> {
             _ => unreachable!("Expected to parse a name and a string"),
         }
     }
-    /// consume any tokens until the closing token or `is_macro_end` and strip whitespace
-    pub(super) fn parse_proc_macro(&mut self, closing: TokenKind) -> Expr {
-        self.bump_any(); // skip the `!`
-        let start = self.node_start();
-        let end = if self.at(closing) {
-            start
-        } else {
-            self.take_while(|t, _| !t.is_macro_end(), closing)
-        };
 
-        let range = TextRange::new(start, end);
+    // #[inline]
+    // fn take_while(
+    //     &mut self,
+    //     mut f: impl FnMut(TokenKind, i32) -> bool,
+    //     closing: TokenKind,
+    // ) -> TextSize {
+    //     let mut nesting = 0;
+    //     let mut range = self.current_token_range();
+    //     let is_opening = match closing {
+    //         TokenKind::Rsqb => TokenKind::is_open_square,
+    //         _ => TokenKind::is_open_paren,
+    //     };
 
-        self.to_string_literal(range)
-    }
-
-    #[inline]
-    fn take_while(
-        &mut self,
-        mut f: impl FnMut(TokenKind, i32) -> bool,
-        closing: TokenKind,
-    ) -> TextSize {
-        let mut nesting = 0;
-        let mut range = self.current_token_range();
-        let is_opening = match closing {
-            TokenKind::Rsqb => TokenKind::is_open_square,
-            _ => TokenKind::is_open_paren,
-        };
-
-        while f(self.current_token_kind(), nesting) {
-            if is_opening(&self.current_token_kind()) {
-                nesting += 1;
-            }
-            if self.current_token_kind() == closing {
-                if nesting == 0 {
-                    break;
-                }
-                nesting -= 1;
-            }
-            range = self.current_token_range();
-            self.bump_any();
-        }
-        range.end()
-    }
+    //     while f(self.current_token_kind(), nesting) {
+    //         if is_opening(&self.current_token_kind()) {
+    //             nesting += 1;
+    //         }
+    //         if self.current_token_kind() == closing {
+    //             if nesting == 0 {
+    //                 break;
+    //             }
+    //             nesting -= 1;
+    //         }
+    //         range = self.current_token_range();
+    //         self.bump_any();
+    //     }
+    //     range.end()
+    // }
 
     /// Creates a xonsh attribute expression.
     fn xonsh_attr(&mut self, name: impl Into<Name>) -> Expr {
