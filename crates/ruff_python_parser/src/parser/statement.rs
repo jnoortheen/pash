@@ -1,5 +1,6 @@
 use compact_str::CompactString;
 use std::fmt::Display;
+use std::fmt::Write as _; // import without risk of name clashing
 
 use rustc_hash::{FxBuildHasher, FxHashSet};
 
@@ -973,7 +974,7 @@ impl<'src> Parser<'src> {
                         value: ast::Number::Int(integer),
                         ..
                     }) = &**slice {
-                        buffer.push_str(&format!("{integer}"));
+                        write!(buffer, "{integer}").unwrap();
                     } else {
                         parser.add_error(
                             ParseErrorType::OtherError(

@@ -33,6 +33,7 @@ annotate-snippets = { workspace = true }
 bon = { workspace = true }
 oxipy-cli = { workspace = true }
 pyo3-built = "*"
+anyhow = {workspace = true}
 
 [dev-dependencies]
 # insta = { workspace = true }
@@ -64,6 +65,7 @@ pyo3 = { version = "0.23.*", features = [
     "abi3-py310",
     "experimental-inspect",
     "num-complex",
+    "anyhow",
 ] }
 rustc-hash = { version = "2.0.0" }
 schemars = { version = "0.8.16" }

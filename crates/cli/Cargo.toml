@@ -15,6 +15,9 @@ clap-verbosity-flag = "*"
 serde = { workspace = true, features = ["derive"] }
 env_logger = "*"
 log = "*"
+rustyline = {version = "*", features = ["derive", "with-fuzzy", "case_insensitive_history_search", "custom-bindings"]}
+dirs = "*"
+anyhow = {workspace = true}
 
 [build-dependencies]
 built = { version = "0.7", features = ["git2"] }

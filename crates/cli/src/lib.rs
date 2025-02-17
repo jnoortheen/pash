@@ -1,10 +1,12 @@
 #[cfg(test)]
 mod lib_test;
 
+mod shell;
+
 use clap::{Parser, arg};
 use clap_verbosity_flag::{Verbosity, WarnLevel};
 use std::ffi::OsString;
-use std::path::PathBuf;
+use anyhow::Result;
 
 #[allow(dead_code)]
 pub mod built {
@@ -52,7 +54,7 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn main<I, T>(args: I)
+    pub fn main<I, T>(args: I) -> Result<()>
     where
         I: IntoIterator<Item = T> + std::fmt::Debug,
         T: Into<OsString> + Clone,
@@ -62,12 +64,15 @@ impl Cli {
         .filter_level(cli.verbose.log_level_filter())
         .init();
 
-        if let Some(script_file) = cli.script_file {
-            log::info!("Running script: {}", script_file.display());
-        } else if let Some(command) = cli.command {
+        if let Some(command) = cli.command {
             log::info!("Running command: {}", command);
-        } else {
-            log::info!("Starting interactive shell");
+            return Ok(());
         }
+
+        log::info!("Starting interactive shell");
+        let mut shell = shell::Shell::new()?;
+        // let mut shell = rustyline::DefaultEditor::new()?;
+        shell.run()?;
+        Ok(())
     }
 }

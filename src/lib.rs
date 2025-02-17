@@ -1,3 +1,5 @@
+#![allow(clippy::useless_conversion)]
+
 mod annotate_src;
 mod lexer;
 mod location;
@@ -25,7 +27,7 @@ mod oxipy {
 
     #[pyfunction] // This will be part of the module
     #[pyo3(signature = (*args))]
-    fn cli_main(args: Vec<String>) {
-        let cli = Cli::main(args);
+    fn cli_main(args: Vec<String>) -> anyhow::Result<()> {
+        Cli::main(args)
     }
 }

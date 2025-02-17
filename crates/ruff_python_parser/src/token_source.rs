@@ -1,3 +1,5 @@
+#![allow(clippy::needless_continue)]
+
 use ruff_text_size::{Ranged, TextRange, TextSize};
 
 use crate::error::LexicalError;
