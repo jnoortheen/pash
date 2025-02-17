@@ -6,10 +6,10 @@ resolver = "2"
 
 [workspace.package]
 edition = "2024"
-homepage = "https://docs.astral.sh/ruff"
-documentation = "https://docs.astral.sh/ruff"
-repository = "https://github.com/astral-sh/ruff"
-authors = ["Charlie Marsh <charlie.r.marsh@gmail.com>"]
+homepage = "https://github.com/jnoortheen/oxipy"
+documentation = "https://github.com/jnoortheen/oxipy"
+repository = "https://github.com/jnoortheen/oxipy"
+authors = ["Noortheen Raja J <jnoortheen@gmail.com>"]
 license = "MIT"
 
 [package]
