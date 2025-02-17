@@ -13,6 +13,9 @@ classifiers = [
 dynamic = ["version"]
 description = "An oxidized, Interactive Python Shell"
 
+[project.scripts]
+oxipy = "oxipy.__main__:main"
+
 [dependency-groups]
 dev = [
     "pip",
