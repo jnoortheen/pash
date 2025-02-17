@@ -1,7 +1,7 @@
 use std::vec;
 
 use ruff_python_ast::name::Name;
-use ruff_python_ast::{self as ast, DictItem, Expr, ExprContext, ExprDict, ExprTuple};
+use ruff_python_ast::{self as ast, DictItem, Expr, ExprContext, ExprDict};
 use ruff_text_size::{Ranged, TextRange, TextSize};
 
 use crate::ParseErrorType;
@@ -344,157 +344,23 @@ impl Parser<'_> {
         let args = vec![lhs];
         self.xonsh_attr(method).call0(args, range)
     }
-    pub(super) fn parse_call_macro(&mut self, lhs: Expr, start: TextSize) -> Expr {
-        self.bump(TokenKind::BangLParen);
-        let closing = TokenKind::Rpar;
-        let mut progress = ParserProgress::default();
-
-        let mut inner_args = vec![];
-        while !self.at(closing) {
-            inner_args.push(self.parse_call_macro_arg(closing));
-            progress.assert_progressing(self);
-        }
-        let range = self.node_range(start);
-        let args = vec![
-            lhs,
-            Expr::from(ExprTuple {
-                elts: inner_args,
-                ctx: ExprContext::Load,
-                range,
-                parenthesized: false,
-            }),
-            self.expr_name("globals").call_empty(range),
-            self.expr_name("locals").call_empty(range),
-        ];
-        self.bump(closing);
-        self.xonsh_attr("call_macro").call0(args, range)
-    }
-    #[inline]
-    fn parse_call_macro_arg(&mut self, closing: TokenKind) -> Expr {
-        let start = self.node_start();
-        let end = {
-            let mut nesting = vec![];
-            let mut end = self.current_token_range().end();
-
-            while !nesting.is_empty() || self.current_token_kind() != closing {
-                let tk = self.current_token_kind();
-                if let Some(inner) = tk.get_closer() {
-                    nesting.push(inner);
-                } else if let Some(last) = nesting.last() {
-                    if last == &tk {
-                        nesting.pop();
-                    }
-                } else if tk == closing || tk == TokenKind::Comma {
-                    break;
-                }
-
-                end = self.current_token_range().end();
-                self.bump_any();
-            }
-            end
-        };
-        if self.at(TokenKind::Comma) {
-            self.bump(TokenKind::Comma);
-        }
-        let range = TextRange::new(start, end);
-        self.to_string_literal(range)
-    }
-    pub(super) fn parse_with_macro(
-        &mut self,
-        items: Vec<ast::WithItem>,
-        start: TextSize,
-    ) -> ast::StmtWith {
-        if self.at(TokenKind::Newline) {
-            self.bump_any();
-        }
-        let suit_start = self.node_start();
-        let min_indent = if self.at(TokenKind::Indent) {
-            let length = self.current_token_range().len().to_usize();
-            self.bump_any();
-            length
-        } else {
-            usize::MIN
-        };
-
-        {
-            // loop until dedent
-            let mut indent_level = 0;
-
-            loop {
-                if self.at(TokenKind::EndOfFile) {
-                    break;
-                }
-                if self.at(TokenKind::Dedent) && indent_level < 1 {
-                    break;
-                }
-                let tk = self.current_token_kind();
-
-                if tk == TokenKind::Indent {
-                    indent_level += 1;
-                } else if indent_level > 0 && tk == TokenKind::Dedent {
-                    indent_level -= 1;
-                }
-                self.bump_any();
-            }
-        }
-        let range = self.node_range(start);
-        let body = {
-            let pass = ast::StmtPass { range };
-            vec![ast::Stmt::from(pass)]
-        };
-        let items = {
-            let suite = {
-                let range = self.node_range(suit_start);
-                let string = dedent(&self.source[range], min_indent);
-                string_literal(range, string)
-            };
-            let enter_macro = self.xonsh_attr("enter_macro");
-            items
-                .into_iter()
-                .map(|item| {
-                    let expr = item.context_expr;
-                    let args = vec![
-                        expr,
-                        suite.clone(),
-                        self.expr_name("globals").call_empty(range),
-                        self.expr_name("locals").call_empty(range),
-                    ];
-
-                    ast::WithItem {
-                        context_expr: enter_macro.clone().call0(args, range),
-                        optional_vars: item.optional_vars,
-                        range,
-                    }
-                })
-                .collect()
-        };
-        if self.at(TokenKind::Dedent) {
-            self.bump_any();
-        }
-        ast::StmtWith {
-            items,
-            body,
-            is_async: false,
-            range,
-        }
-    }
 }
 
-fn dedent(input: &str, min_indent: usize) -> String {
-    let lines: Vec<&str> = input.lines().collect();
+// fn dedent(input: &str, min_indent: usize) -> String {
+//     let lines: Vec<&str> = input.lines().collect();
 
-    lines
-        .iter()
-        .map(|line| {
-            if line.trim().is_empty() {
-                (*line).to_string() // Preserve empty lines
-            } else {
-                line.chars().skip(min_indent).collect()
-            }
-        })
-        .collect::<Vec<String>>()
-        .join("\n")
-}
+//     lines
+//         .iter()
+//         .map(|line| {
+//             if line.trim().is_empty() {
+//                 (*line).to_string() // Preserve empty lines
+//             } else {
+//                 line.chars().skip(min_indent).collect()
+//             }
+//         })
+//         .collect::<Vec<String>>()
+//         .join("\n")
+// }
 
 fn string_literal(range: TextRange, value: String) -> Expr {
     let literal = ast::StringLiteral {

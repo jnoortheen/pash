@@ -13,8 +13,8 @@ use ruff_python_ast::{
 use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
 
 use crate::parser::progress::ParserProgress;
-use crate::parser::{helpers, FunctionKind, Parser};
-use crate::string::{parse_fstring_literal_element, parse_string_literal, StringType};
+use crate::parser::{FunctionKind, Parser, helpers};
+use crate::string::{StringType, parse_fstring_literal_element, parse_string_literal};
 use crate::token::{TokenKind, TokenValue};
 use crate::token_set::TokenSet;
 use crate::{FStringErrorType, Mode, ParseErrorType};
@@ -613,22 +613,27 @@ impl<'src> Parser<'src> {
             TokenKind::Lbrace => self.parse_set_or_dict_like_expression(),
 
             kind => {
-                match SUBPROC_TOKENS.get(&kind) { Some((method, closing)) => {
-                    self.bump_any(); // skip the `$(`
-                    self.parse_subprocs((*method).to_string(), *closing)
-                } _ => if kind.is_keyword() {
-                    Expr::Name(self.parse_name())
-                } else {
-                    self.add_error(
-                        ParseErrorType::ExpectedExpression,
-                        self.current_token_range(),
-                    );
-                    Expr::Name(ast::ExprName {
-                        range: self.missing_node_range(),
-                        id: Name::empty(),
-                        ctx: ExprContext::Invalid,
-                    })
-                }}
+                match SUBPROC_TOKENS.get(&kind) {
+                    Some((method, closing)) => {
+                        self.bump_any(); // skip the `$(`
+                        self.parse_subprocs((*method).to_string(), *closing)
+                    }
+                    _ => {
+                        if kind.is_keyword() {
+                            Expr::Name(self.parse_name())
+                        } else {
+                            self.add_error(
+                                ParseErrorType::ExpectedExpression,
+                                self.current_token_range(),
+                            );
+                            Expr::Name(ast::ExprName {
+                                range: self.missing_node_range(),
+                                id: Name::empty(),
+                                ctx: ExprContext::Invalid,
+                            })
+                        }
+                    }
+                }
             }
         };
 
@@ -648,7 +653,6 @@ impl<'src> Parser<'src> {
                 TokenKind::Lsqb => Expr::Subscript(self.parse_subscript_expression(lhs, start)),
                 TokenKind::Dot => Expr::Attribute(self.parse_attribute_expression(lhs, start)),
                 TokenKind::Question => self.parse_help_expr(lhs, start),
-                TokenKind::BangLParen => self.parse_call_macro(lhs, start),
                 _ => break lhs,
             };
         }

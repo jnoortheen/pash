@@ -10,17 +10,17 @@ use ruff_python_ast::{
 };
 use ruff_text_size::{Ranged, TextSize};
 
-use crate::parser::expression::{ParsedExpr, EXPR_SET};
+use crate::parser::expression::{EXPR_SET, ParsedExpr};
 use crate::parser::progress::ParserProgress;
 use crate::parser::{
-    helpers, FunctionKind, Parser, RecoveryContext, RecoveryContextKind, WithItemKind,
+    FunctionKind, Parser, RecoveryContext, RecoveryContextKind, WithItemKind, helpers,
 };
 use crate::token::{TokenKind, TokenValue};
 use crate::token_set::TokenSet;
 use crate::{Mode, ParseErrorType};
 
-use super::expression::ExpressionContext;
 use super::Parenthesized;
+use super::expression::ExpressionContext;
 
 /// Tokens that represent compound statements.
 const COMPOUND_STMT_SET: TokenSet = TokenSet::new([
@@ -973,7 +973,8 @@ impl<'src> Parser<'src> {
                     if let Expr::NumberLiteral(ast::ExprNumberLiteral {
                         value: ast::Number::Int(integer),
                         ..
-                    }) = &**slice {
+                    }) = &**slice
+                    {
                         write!(buffer, "{integer}").unwrap();
                     } else {
                         parser.add_error(
@@ -1916,21 +1917,11 @@ impl<'src> Parser<'src> {
     /// See: <https://docs.python.org/3/reference/compound_stmts.html#the-with-statement>
     fn parse_with_statement(&mut self, start: TextSize) -> ast::StmtWith {
         self.bump(TokenKind::With);
-        let is_macro = if self.at(TokenKind::Exclamation) {
-            self.bump_any();
-            true
-        } else {
-            false
-        };
         let items = self.parse_with_items();
 
         self.expect(TokenKind::Colon);
 
-        let body = if is_macro {
-            return self.parse_with_macro(items, start);
-        } else {
-            self.parse_body(Clause::With)
-        };
+        let body = self.parse_body(Clause::With);
 
         ast::StmtWith {
             items,
@@ -1955,32 +1946,35 @@ impl<'src> Parser<'src> {
         }
 
         if self.at(TokenKind::Lpar) {
-            match self.try_parse_parenthesized_with_items() { Some(items) => {
-                self.expect(TokenKind::Rpar);
-                items
-            } _ => {
-                // test_ok ambiguous_lpar_with_items_if_expr
-                // with (x) if True else y: ...
-                // with (x for x in iter) if True else y: ...
-                // with (x async for x in iter) if True else y: ...
-                // with (x)[0] if True else y: ...
+            match self.try_parse_parenthesized_with_items() {
+                Some(items) => {
+                    self.expect(TokenKind::Rpar);
+                    items
+                }
+                _ => {
+                    // test_ok ambiguous_lpar_with_items_if_expr
+                    // with (x) if True else y: ...
+                    // with (x for x in iter) if True else y: ...
+                    // with (x async for x in iter) if True else y: ...
+                    // with (x)[0] if True else y: ...
 
-                // test_ok ambiguous_lpar_with_items_binary_expr
-                // # It doesn't matter what's inside the parentheses, these tests need to make sure
-                // # all binary expressions parses correctly.
-                // with (a) and b: ...
-                // with (a) is not b: ...
-                // # Make sure precedence works
-                // with (a) or b and c: ...
-                // with (a) and b or c: ...
-                // with (a | b) << c | d: ...
-                // # Postfix should still be parsed first
-                // with (a)[0] + b * c: ...
-                self.parse_comma_separated_list_into_vec(
-                    RecoveryContextKind::WithItems(WithItemKind::ParenthesizedExpression),
-                    |p| p.parse_with_item(WithItemParsingState::Regular).item,
-                )
-            }}
+                    // test_ok ambiguous_lpar_with_items_binary_expr
+                    // # It doesn't matter what's inside the parentheses, these tests need to make sure
+                    // # all binary expressions parses correctly.
+                    // with (a) and b: ...
+                    // with (a) is not b: ...
+                    // # Make sure precedence works
+                    // with (a) or b and c: ...
+                    // with (a) and b or c: ...
+                    // with (a | b) << c | d: ...
+                    // # Postfix should still be parsed first
+                    // with (a)[0] + b * c: ...
+                    self.parse_comma_separated_list_into_vec(
+                        RecoveryContextKind::WithItems(WithItemKind::ParenthesizedExpression),
+                        |p| p.parse_with_item(WithItemParsingState::Regular).item,
+                    )
+                }
+            }
         } else {
             self.parse_comma_separated_list_into_vec(
                 RecoveryContextKind::WithItems(WithItemKind::Unparenthesized),
