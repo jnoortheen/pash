@@ -118,7 +118,6 @@ def xsh():
     return obj
 
 
-#
 @pytest.fixture
 def exec_code(xsh, parse_string):
     """compatibility fixture"""

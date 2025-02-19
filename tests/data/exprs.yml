@@ -49,15 +49,15 @@ _ors:
     exp: ox.cmd('ls').run() or ox.cmd('grep', 'wakka').run() or ox.cmd('grep', 'jawaka').run()
 _bg:
   - inp: $(emacs ugggh & echo done)
-    exp: ox.cmd('emacs', 'ugggh').bg().cmd('echo', 'done').run(capture=True)
+    exp: ox.cmd('emacs', 'ugggh', bg=True).cmd('echo', 'done').run(capture=True)
   - inp: $(emacs ugggh&)
-    exp: ox.cmd('emacs', 'ugggh').bg().run(capture=True)
+    exp: ox.cmd('emacs', 'ugggh', bg=True).run(capture=True)
   - inp: $(emacs ugggh &)
-    exp: ox.cmd('emacs', 'ugggh').bg().run(capture=True)
+    exp: ox.cmd('emacs', 'ugggh', bg=True).run(capture=True)
   - inp: $(emacs ugggh&)
-    exp: ox.cmd('emacs', 'ugggh').bg().run(capture=True)
+    exp: ox.cmd('emacs', 'ugggh', bg=True).run(capture=True)
   - inp: "!emacs ugggh &"
-    exp: ox.cmd('emacs', 'ugggh').bg().run()
+    exp: ox.cmd('emacs', 'ugggh', bg=True).run()
 _regex:
   - inp: "`hello`"
     exp: ox.Pattern('hello').regex()
