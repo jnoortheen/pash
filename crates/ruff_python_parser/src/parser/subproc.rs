@@ -224,7 +224,7 @@ impl Parser<'_> {
 
     /// Creates a xonsh attribute expression.
     fn xonsh_attr(&mut self, name: impl Into<Name>) -> Expr {
-        let xonsh = self.expr_name("__xonsh__");
+        let xonsh = self.expr_name("ox");
         xonsh.attr(name, self.current_token_range())
     }
     fn to_identifier(&self, name: impl Into<Name>) -> ast::Identifier {
@@ -312,12 +312,6 @@ impl Parser<'_> {
                     .xonsh_attr("Pattern")
                     .call0(vec![expr], self.node_range(start))
                     .attr("regex", self.node_range(start))
-                    .call_empty(self.node_range(start));
-            } else if s.value.is_glob() {
-                return self
-                    .xonsh_attr("Pattern")
-                    .call0(vec![expr], self.node_range(start))
-                    .attr("glob", self.node_range(start))
                     .call_empty(self.node_range(start));
             }
         }

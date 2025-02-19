@@ -132,7 +132,7 @@ def exec_code(xsh, parse_string):
         xsh.obs = parse_string(inp)
         bytecode = compile(xsh.obs, "<test-xonsh-ast>", mode)
         xsh.env = xenv or {}
-        globs = {"__xonsh__": xsh}
+        globs = {"ox": xsh}
         locs.update(globs)
         exec(bytecode, globs, locs)
         return xsh

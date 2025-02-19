@@ -1,23 +1,23 @@
 assignments:
 - inp: $WAKKA
-  exp: __xonsh__.env['WAKKA']
+  exp: ox.env['WAKKA']
 - inp: $y = 'one'
-  exp: __xonsh__.env['y'] = 'one'
+  exp: ox.env['y'] = 'one'
 - inp: $WAKKA = 42
-  exp: __xonsh__.env['WAKKA'] = 42
+  exp: ox.env['WAKKA'] = 42
 - inp: y = $x
-  exp: y = __xonsh__.env['x']
+  exp: y = ox.env['x']
 - inp: y = ${x}
-  exp: y = __xonsh__.env[x]
+  exp: y = ox.env[x]
 - inp: y = ${'x' + 'y'}
-  exp: y = __xonsh__.env['x' + 'y']
+  exp: y = ox.env['x' + 'y']
 - inp: ${None or "WAKKA"}
-  exp: __xonsh__.env[None or 'WAKKA']
+  exp: ox.env[None or 'WAKKA']
 - inp: ${$JAWAKA}
-  exp: __xonsh__.env[__xonsh__.env['JAWAKA']]
+  exp: ox.env[ox.env['JAWAKA']]
 - inp: $WAKKA = 42
-  exp: __xonsh__.env['WAKKA'] = 42
+  exp: ox.env['WAKKA'] = 42
 - inp: ${$JAWA + $JAWAKA[-2:]}
-  exp: __xonsh__.env[__xonsh__.env['JAWA'] + __xonsh__.env['JAWAKA'][-2:]]
+  exp: ox.env[ox.env['JAWA'] + ox.env['JAWAKA'][-2:]]
 - inp: ${x} = 65
-  exp: __xonsh__.env[x] = 65
+  exp: ox.env[x] = 65

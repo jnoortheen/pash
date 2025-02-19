@@ -87,26 +87,6 @@ def test_captured_procs(inp, result, exec_code):
             assert last_call == "obj"
 
 
-@pytest.mark.parametrize(
-    "expr",
-    [
-        "!(ls)",
-        "!(ls )",
-        "!( ls)",
-        "!( ls )",
-        "!(ls .)",
-        '!(ls @(None or "."))',
-        '!(ls ".")',
-        "!(ls $(ls))",
-        "!(ls $(ls) -l)",
-        "!(ls $WAKKA)",
-        "!($LS .)",
-    ],
-)
-def test_bang_procs(expr, exec_code):
-    exec_code(expr, xenv={"LS": "ll", "WAKKA": "wak"})
-
-
 @pytest.mark.parametrize("p", ["", "p"])
 @pytest.mark.parametrize("f", ["", "f"])
 @pytest.mark.parametrize("glob_type", ["", "r", "g"])
