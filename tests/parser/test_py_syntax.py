@@ -8,12 +8,16 @@ from pathlib import Path
 import pytest
 
 files = []
-for py in (Path(__file__).parent / "data").glob("*.py"):
+data_dir = Path(__file__).parent.parent / "data"
+assert data_dir.exists(), f"Data directory {data_dir} does not exist"
+for py in data_dir.glob("*.py"):
     if ".3_" in py.name:
         _, syntax_version, _ = py.name.rsplit(".", 2)
         if sys.version_info < tuple(int(v) for v in syntax_version.split("_")):
             continue
     files.append(pytest.param(py, id=py.name))
+
+assert files, "No files to test"
 
 
 def unparse_diff(**trees: ast.AST):
