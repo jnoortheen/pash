@@ -115,6 +115,7 @@ impl Parser<'_> {
 
         match kind {
             TokenKind::At => self.parse_decorator_or_interpolation(),
+            TokenKind::Lbrace => self.parse_decorator_or_interpolation(),
             TokenKind::String
             | TokenKind::FStringStart
             | TokenKind::Lpar
@@ -171,6 +172,12 @@ impl Parser<'_> {
         DictItem { key, value }
     }
     pub(super) fn parse_decorator_or_interpolation(&mut self) -> Expr {
+        if self.at(TokenKind::Lbrace) {
+            self.bump_any();
+            let expr = self.parse_slice(TokenKind::Rbrace);
+            self.bump(TokenKind::Rbrace);
+            return expr;
+        }
         self.bump_any(); // skip the `@`
         match self.current_token_kind() {
             TokenKind::Lpar => {
