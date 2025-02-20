@@ -84,223 +84,145 @@ impl std::fmt::Display for FStringErrorType {
 }
 
 /// Represents the different types of errors that can occur during parsing.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, thiserror::Error)]
 pub enum ParseErrorType {
     /// An unexpected error occurred.
+    #[error("{0}")]
     OtherError(String),
 
     /// An empty slice was found during parsing, e.g `data[]`.
+    #[error("expected index or slice expression")]
     EmptySlice,
     /// An empty global names list was found during parsing.
+    #[error("global statement must have at least one name")]
     EmptyGlobalNames,
     /// An empty nonlocal names list was found during parsing.
+    #[error("nonlocal statement must have at least one name")]
     EmptyNonlocalNames,
     /// An empty delete targets list was found during parsing.
+    #[error("delete statement must have at least one target")]
     EmptyDeleteTargets,
     /// An empty import names list was found during parsing.
+    #[error("expected one or more symbol names after import")]
     EmptyImportNames,
     /// An empty type parameter list was found during parsing.
+    #[error("type parameter list cannot be empty")]
     EmptyTypeParams,
 
     /// An unparenthesized named expression was found where it is not allowed.
+    #[error("unparenthesized named expression cannot be used here")]
     UnparenthesizedNamedExpression,
     /// An unparenthesized tuple expression was found where it is not allowed.
+    #[error("unparenthesized tuple expression cannot be used here")]
     UnparenthesizedTupleExpression,
     /// An unparenthesized generator expression was found where it is not allowed.
+    #[error("unparenthesized generator expression cannot be used here")]
     UnparenthesizedGeneratorExpression,
 
     /// An invalid usage of a lambda expression was found.
+    #[error("lambda expression cannot be used here")]
     InvalidLambdaExpressionUsage,
     /// An invalid usage of a yield expression was found.
+    #[error("yield expression cannot be used here")]
     InvalidYieldExpressionUsage,
     /// An invalid usage of a starred expression was found.
+    #[error("starred expression cannot be used here")]
     InvalidStarredExpressionUsage,
     /// A star pattern was found outside a sequence pattern.
+    #[error("star pattern cannot be used here")]
     InvalidStarPatternUsage,
 
     /// A parameter was found after a vararg.
+    #[error("parameter cannot follow var-keyword parameter")]
     ParamAfterVarKeywordParam,
     /// A non-default parameter follows a default parameter.
+    #[error("parameter without a default cannot follow a parameter with a default")]
     NonDefaultParamAfterDefaultParam,
     /// A default value was found for a `*` or `**` parameter.
+    #[error("parameter with '*' or '**' cannot have default value")]
     VarParameterWithDefault,
 
     /// A duplicate parameter was found in a function definition or lambda expression.
+    #[error("duplicate parameter {0:?}")]
     DuplicateParameter(String),
     /// A keyword argument was repeated.
+    #[error("duplicate keyword argument {0:?}")]
     DuplicateKeywordArgumentError(String),
 
     /// An invalid expression was found in the assignment target.
+    #[error("invalid assignment target")]
     InvalidAssignmentTarget,
     /// An invalid expression was found in the named assignment target.
+    #[error("invalid named assignment target")]
     InvalidNamedAssignmentTarget,
     /// An invalid expression was found in the annotated assignment target.
+    #[error("invalid annotated assignment target")]
     InvalidAnnotatedAssignmentTarget,
     /// An invalid expression was found in the augmented assignment target.
+    #[error("invalid augmented assignment target")]
     InvalidAugmentedAssignmentTarget,
     /// An invalid expression was found in the delete target.
+    #[error("invalid delete target")]
     InvalidDeleteTarget,
 
     /// A positional argument was found after a keyword argument.
+    #[error("positional argument cannot follow keyword argument")]
     PositionalAfterKeywordArgument,
     /// A positional argument was found after a keyword argument unpacking.
+    #[error("positional argument cannot follow keyword argument unpacking")]
     PositionalAfterKeywordUnpacking,
     /// An iterable argument unpacking was found after keyword argument unpacking.
+    #[error("iterable argument unpacking cannot follow keyword argument unpacking")]
     InvalidArgumentUnpackingOrder,
     /// An invalid usage of iterable unpacking in a comprehension was found.
+    #[error("iterable unpacking cannot be used in a comprehension")]
     IterableUnpackingInComprehension,
 
     /// Multiple simple statements were found in the same line without a `;` separating them.
+    #[error("simple statements must be separated by newlines or semicolons")]
     SimpleStatementsOnSameLine,
     /// A simple statement and a compound statement was found in the same line.
+    #[error("compound statements are not allowed on the same line as simple statements")]
     SimpleAndCompoundStatementOnSameLine,
 
     /// Expected one or more keyword parameter after `*` separator.
+    #[error("expected one or more keyword parameter after '*' separator")]
     ExpectedKeywordParam,
     /// Expected a real number for a complex literal pattern.
+    #[error("expected a real number in complex literal pattern")]
     ExpectedRealNumber,
     /// Expected an imaginary number for a complex literal pattern.
+    #[error("expected an imaginary number in complex literal pattern")]
     ExpectedImaginaryNumber,
     /// Expected an expression at the current parser location.
+    #[error("expected an expression")]
     ExpectedExpression,
     /// The parser expected a specific token that was not found.
+    #[error("expected {expected}, found {found}")]
     ExpectedToken {
         expected: TokenKind,
         found: TokenKind,
     },
 
     /// An unexpected indentation was found during parsing.
+    #[error("unexpected indentation")]
     UnexpectedIndentation,
     /// The statement being parsed cannot be `async`.
+    #[error("expected 'def', 'with' or 'for' to follow 'async', found {0}")]
     UnexpectedTokenAfterAsync(TokenKind),
     /// Ipython escape command was found
+    #[error("IPython escape commands are only allowed in `Mode::Ipython`")]
     UnexpectedIpythonEscapeCommand,
     /// An unexpected token was found at the end of an expression parsing
+    #[error("unexpected token at the end of an expression")]
     UnexpectedExpressionToken,
 
     /// An f-string error containing the [`FStringErrorType`].
+    #[error("f-string: {0}")]
     FStringError(FStringErrorType),
     /// Parser encountered an error during lexing.
+    #[error("lexical error: {0}")]
     Lexical(LexicalErrorType),
-}
-
-impl std::error::Error for ParseErrorType {}
-
-impl std::fmt::Display for ParseErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            ParseErrorType::OtherError(msg) => write!(f, "{msg}"),
-            ParseErrorType::ExpectedToken { found, expected } => {
-                write!(f, "Expected {expected}, found {found}",)
-            }
-            ParseErrorType::Lexical(lex_error) => write!(f, "{lex_error}"),
-            ParseErrorType::SimpleStatementsOnSameLine => {
-                f.write_str("Simple statements must be separated by newlines or semicolons")
-            }
-            ParseErrorType::SimpleAndCompoundStatementOnSameLine => f.write_str(
-                "Compound statements are not allowed on the same line as simple statements",
-            ),
-            ParseErrorType::UnexpectedTokenAfterAsync(kind) => {
-                write!(
-                    f,
-                    "Expected 'def', 'with' or 'for' to follow 'async', found {kind}",
-                )
-            }
-            ParseErrorType::InvalidArgumentUnpackingOrder => {
-                f.write_str("Iterable argument unpacking cannot follow keyword argument unpacking")
-            }
-            ParseErrorType::IterableUnpackingInComprehension => {
-                f.write_str("Iterable unpacking cannot be used in a comprehension")
-            }
-            ParseErrorType::UnparenthesizedNamedExpression => {
-                f.write_str("Unparenthesized named expression cannot be used here")
-            }
-            ParseErrorType::UnparenthesizedTupleExpression => {
-                f.write_str("Unparenthesized tuple expression cannot be used here")
-            }
-            ParseErrorType::UnparenthesizedGeneratorExpression => {
-                f.write_str("Unparenthesized generator expression cannot be used here")
-            }
-            ParseErrorType::InvalidYieldExpressionUsage => {
-                f.write_str("Yield expression cannot be used here")
-            }
-            ParseErrorType::InvalidLambdaExpressionUsage => {
-                f.write_str("Lambda expression cannot be used here")
-            }
-            ParseErrorType::InvalidStarredExpressionUsage => {
-                f.write_str("Starred expression cannot be used here")
-            }
-            ParseErrorType::PositionalAfterKeywordArgument => {
-                f.write_str("Positional argument cannot follow keyword argument")
-            }
-            ParseErrorType::PositionalAfterKeywordUnpacking => {
-                f.write_str("Positional argument cannot follow keyword argument unpacking")
-            }
-            ParseErrorType::EmptySlice => f.write_str("Expected index or slice expression"),
-            ParseErrorType::EmptyGlobalNames => {
-                f.write_str("Global statement must have at least one name")
-            }
-            ParseErrorType::EmptyNonlocalNames => {
-                f.write_str("Nonlocal statement must have at least one name")
-            }
-            ParseErrorType::EmptyDeleteTargets => {
-                f.write_str("Delete statement must have at least one target")
-            }
-            ParseErrorType::EmptyImportNames => {
-                f.write_str("Expected one or more symbol names after import")
-            }
-            ParseErrorType::EmptyTypeParams => f.write_str("Type parameter list cannot be empty"),
-            ParseErrorType::ParamAfterVarKeywordParam => {
-                f.write_str("Parameter cannot follow var-keyword parameter")
-            }
-            ParseErrorType::NonDefaultParamAfterDefaultParam => {
-                f.write_str("Parameter without a default cannot follow a parameter with a default")
-            }
-            ParseErrorType::ExpectedKeywordParam => {
-                f.write_str("Expected one or more keyword parameter after '*' separator")
-            }
-            ParseErrorType::VarParameterWithDefault => {
-                f.write_str("Parameter with '*' or '**' cannot have default value")
-            }
-            ParseErrorType::InvalidStarPatternUsage => {
-                f.write_str("Star pattern cannot be used here")
-            }
-            ParseErrorType::ExpectedRealNumber => {
-                f.write_str("Expected a real number in complex literal pattern")
-            }
-            ParseErrorType::ExpectedImaginaryNumber => {
-                f.write_str("Expected an imaginary number in complex literal pattern")
-            }
-            ParseErrorType::ExpectedExpression => f.write_str("Expected an expression"),
-            ParseErrorType::UnexpectedIndentation => f.write_str("Unexpected indentation"),
-            ParseErrorType::InvalidAssignmentTarget => f.write_str("Invalid assignment target"),
-            ParseErrorType::InvalidAnnotatedAssignmentTarget => {
-                f.write_str("Invalid annotated assignment target")
-            }
-            ParseErrorType::InvalidNamedAssignmentTarget => {
-                f.write_str("Assignment expression target must be an identifier")
-            }
-            ParseErrorType::InvalidAugmentedAssignmentTarget => {
-                f.write_str("Invalid augmented assignment target")
-            }
-            ParseErrorType::InvalidDeleteTarget => f.write_str("Invalid delete target"),
-            ParseErrorType::DuplicateParameter(arg_name) => {
-                write!(f, "Duplicate parameter {arg_name:?}")
-            }
-            ParseErrorType::DuplicateKeywordArgumentError(arg_name) => {
-                write!(f, "Duplicate keyword argument {arg_name:?}")
-            }
-            ParseErrorType::UnexpectedIpythonEscapeCommand => {
-                f.write_str("IPython escape commands are only allowed in `Mode::Ipython`")
-            }
-            ParseErrorType::FStringError(fstring_error) => {
-                write!(f, "f-string: {fstring_error}")
-            }
-            ParseErrorType::UnexpectedExpressionToken => {
-                write!(f, "Unexpected token at the end of an expression")
-            }
-        }
-    }
 }
 
 /// Represents an error that occur during lexing and are
@@ -361,69 +283,46 @@ impl std::fmt::Display for LexicalError {
 }
 
 /// Represents the different types of errors that can occur during lexing.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, thiserror::Error)]
 pub enum LexicalErrorType {
     // TODO: Can probably be removed, the places it is used seem to be able
     // to use the `UnicodeError` variant instead.
     #[doc(hidden)]
+    #[error("Got unexpected string")]
     StringError,
     /// A string literal without the closing quote.
+    #[error("missing closing quote in string literal")]
     UnclosedStringError,
     /// Decoding of a unicode escape sequence in a string literal failed.
+    #[error("Got unexpected unicode")]
     UnicodeError,
     /// Missing the `{` for unicode escape sequence.
+    #[error("Missing `{{` in Unicode escape sequence")]
     MissingUnicodeLbrace,
     /// Missing the `}` for unicode escape sequence.
+    #[error("Missing `}}` in Unicode escape sequence")]
     MissingUnicodeRbrace,
     /// The indentation is not consistent.
+    #[error("unindent does not match any outer indentation level")]
     IndentationError,
     /// An unrecognized token was encountered.
+    #[error("Got unexpected token {tok}")]
     UnrecognizedToken { tok: char },
     /// An f-string error containing the [`FStringErrorType`].
+    #[error("f-string: {0}")]
     FStringError(FStringErrorType),
     /// Invalid character encountered in a byte literal.
+    #[error("bytes can only contain ASCII literal characters")]
     InvalidByteLiteral,
     /// An unexpected character was encountered after a line continuation.
+    #[error("Expected a newline after line continuation character")]
     LineContinuationError,
     /// An unexpected end of file was encountered.
+    #[error("unexpected EOF while parsing")]
     Eof,
     /// An unexpected error occurred.
+    #[error("{0}")]
     OtherError(Box<str>),
-}
-
-impl std::error::Error for LexicalErrorType {}
-
-impl std::fmt::Display for LexicalErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            LexicalErrorType::StringError => write!(f, "Got unexpected string"),
-            LexicalErrorType::FStringError(error) => write!(f, "f-string: {error}"),
-            LexicalErrorType::InvalidByteLiteral => {
-                write!(f, "bytes can only contain ASCII literal characters")
-            }
-            LexicalErrorType::UnicodeError => write!(f, "Got unexpected unicode"),
-            LexicalErrorType::IndentationError => {
-                write!(f, "unindent does not match any outer indentation level")
-            }
-            LexicalErrorType::UnrecognizedToken { tok } => {
-                write!(f, "Got unexpected token {tok}")
-            }
-            LexicalErrorType::LineContinuationError => {
-                write!(f, "Expected a newline after line continuation character")
-            }
-            LexicalErrorType::Eof => write!(f, "unexpected EOF while parsing"),
-            LexicalErrorType::OtherError(msg) => write!(f, "{msg}"),
-            LexicalErrorType::UnclosedStringError => {
-                write!(f, "missing closing quote in string literal")
-            }
-            LexicalErrorType::MissingUnicodeLbrace => {
-                write!(f, "Missing `{{` in Unicode escape sequence")
-            }
-            LexicalErrorType::MissingUnicodeRbrace => {
-                write!(f, "Missing `}}` in Unicode escape sequence")
-            }
-        }
-    }
 }
 
 #[cfg(target_pointer_width = "64")]

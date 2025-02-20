@@ -25,6 +25,8 @@ static_assertions = { workspace = true }
 unicode-ident = { workspace = true }
 unicode_names2 = { workspace = true }
 unicode-normalization = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
 
 [dev-dependencies]
 ruff_source_file = { workspace = true }

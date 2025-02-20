@@ -30,7 +30,8 @@ path-dedot = { version = "3.1.1", optional = true }
 os_pipe = { version = "1.1.4", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 monch = "0.5.0"
-thiserror = "2.0.9"
+thiserror = { workspace = true }
+pyo3 = { workspace = true }
 tokio = { version = "1", features = [
     "fs",
     "io-std",

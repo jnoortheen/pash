@@ -51,6 +51,7 @@ ruff_text_size = { git = "https://github.com/astral-sh/ruff.git" }
 oxipy-cli = { path = "crates/cli" }
 cmdgroup = { path = "crates/cmdgroup" }
 
+thiserror = "*"
 bon = { version = "*" }
 num-complex = { version = "*" }
 aho-corasick = { version = "1.1.3" }
