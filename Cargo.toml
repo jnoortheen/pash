@@ -33,7 +33,8 @@ annotate-snippets = { workspace = true }
 bon = { workspace = true }
 oxipy-cli = { workspace = true }
 pyo3-built = "*"
-anyhow = {workspace = true}
+anyhow = { workspace = true }
+cmdgroup = { workspace = true }
 
 [dev-dependencies]
 # insta = { workspace = true }
@@ -48,6 +49,7 @@ ruff_python_trivia = { git = "https://github.com/astral-sh/ruff.git" }
 ruff_source_file = { git = "https://github.com/astral-sh/ruff.git" }
 ruff_text_size = { git = "https://github.com/astral-sh/ruff.git" }
 oxipy-cli = { path = "crates/cli" }
+cmdgroup = { path = "crates/cmdgroup" }
 
 bon = { version = "*" }
 num-complex = { version = "*" }
