@@ -296,7 +296,7 @@ impl Parser<'_> {
         if let Expr::StringLiteral(s) = &expr {
             if s.value.is_path() {
                 return self
-                    .xonsh_attr("path_literal", None)
+                    .xonsh_attr("path", None)
                     .call0(vec![expr], self.node_range(start));
             } else if s.value.is_regex() {
                 return self

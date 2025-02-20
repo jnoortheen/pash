@@ -1,178 +1,80 @@
 env:
-  - inp: $WAKKA
-    exp: ox.env['WAKKA']
-  - inp: ${None or $JAWAKA}
-    exp: ox.env[None or ox.env['JAWAKA']]
+- inp: $WAKKA
+  exp: ox.env['WAKKA']
+- inp: ${None or $JAWAKA}
+  exp: ox.env[None or ox.env['JAWAKA']]
 
-_captured:
-  - inp: $(cmd sub-cmd --opt)
-    exp: ox.cmd('cmd', 'sub-cmd', '--opt').run(capture=True)
-_uncaptured:
-  - inp: "!cmd sub-cmd --opt"
-    exp: ox.cmd('cmd', 'sub-cmd', '--opt').run()
-  - inp: '!git commit -am "wakka"'
-    exp: ox.cmd('git', 'commit', '-am', 'wakka').run()
-  - inp: '!git commit -am "wakka jawaka"'
-    exp: ox.cmd('git', 'commit', '-am', 'wakka jawaka').run()
-  - inp: '!ls "wakka jawaka baraka"'
-    exp: ox.cmd('ls', 'wakka jawaka baraka').run()
-  - inp: '!echo ,'
-    exp: ox.cmd('echo', ',').run()
-  - inp: '!echo 1,2'
-    exp: ox.cmd('echo', '1,2').run()
-  - inp: '!echo $foo'
-    exp: ox.cmd('echo', '$foo').run()
-  - inp: '!echo r"$foo"'
-    exp: ox.cmd('echo', 'r"$foo"').run()
-_pipe:
-  - inp: $(ls | grep wakka)
-    exp: ox.cmd('ls').pipe('grep', 'wakka').run(capture=True)
-  - inp: $(ls | grep wakka | grep jawaka)
-    exp: ox.cmd('ls').pipe('grep', 'wakka').pipe('grep', 'jawaka').run(capture=True)
-_ands:
-  - inp: "!ls me and grep wakka"
-    exp: ox.cmd('ls', 'me').run() and ox.cmd('grep', 'wakka').run()
-  - inp: "!ls and grep wakka and grep jawaka"
-    exp: ox.cmd('ls').run() and ox.cmd('grep', 'wakka').run() and ox.cmd('grep', 'jawaka').run()
-  - inp: "!ls && grep wakka"
-    exp: ox.cmd('ls').run() and ox.cmd('grep', 'wakka').run()
-  - inp: "!ls && grep wakka && grep jawaka"
-    exp: ox.cmd('ls').run() and ox.cmd('grep', 'wakka').run() and ox.cmd('grep', 'jawaka').run()
-_ors:
-  - inp: "!ls or grep wakka"
-    exp: ox.cmd('ls').run() or ox.cmd('grep', 'wakka').run()
-  - inp: "!ls or grep wakka or grep jawaka"
-    exp: ox.cmd('ls').run() or ox.cmd('grep', 'wakka').run() or ox.cmd('grep', 'jawaka').run()
-  - inp: "!ls || grep wakka"
-    exp: ox.cmd('ls').run() or ox.cmd('grep', 'wakka').run()
-  - inp: "!ls || grep wakka || grep jawaka"
-    exp: ox.cmd('ls').run() or ox.cmd('grep', 'wakka').run() or ox.cmd('grep', 'jawaka').run()
-_bg:
-  - inp: $(emacs ugggh & echo done)
-    exp: ox.cmd('emacs', 'ugggh', bg=True).cmd('echo', 'done').run(capture=True)
-  - inp: $(emacs ugggh&)
-    exp: ox.cmd('emacs', 'ugggh', bg=True).run(capture=True)
-  - inp: $(emacs ugggh &)
-    exp: ox.cmd('emacs', 'ugggh', bg=True).run(capture=True)
-  - inp: $(emacs ugggh&)
-    exp: ox.cmd('emacs', 'ugggh', bg=True).run(capture=True)
-  - inp: "!emacs ugggh &"
-    exp: ox.cmd('emacs', 'ugggh', bg=True).run()
-_regex:
-  - inp: "`hello`"
-    exp: ox.Pattern('hello').regex()
-  - inp: $(ls `#[Ff]+i*LE` -l)
-    exp: ox.cmd('ls', ox.Pattern('#[Ff]+i*LE').regex(), '-l').run(capture=True)
-  - inp: print(`#.*`)
-    exp: print(ox.Pattern('#.*').regex())
-_prefix-regex:
-  - inp: $(ls r`[Ff]+i*LE` -l)
-    exp: ox.cmd('ls', ox.Pattern('[Ff]+i*LE').regex(), '-l').run(capture=True)
-  - inp: $(ls f`{mypattern[0]}+` -l)
-    exp: ox.cmd('ls', ox.Pattern('[Ff]+i*LE').regex(), '-l').run(capture=True)
-  - inp: print(@foo`.*`)
-    exp: print(ox.Pattern('.*').invoke(foo))
+captured:
+- inp: $(cmd sub-cmd --opt)
+  exp: ox.cmd('cmd', 'sub-cmd', '--opt').out()
+pipe:
+- inp: $(ls | grep wakka)
+  exp: ox.cmd('ls').pipe('grep', 'wakka').out()
+- inp: $(ls | grep wakka | grep jawaka)
+  exp: ox.cmd('ls').pipe('grep', 'wakka').pipe('grep', 'jawaka').out()
+bg:
+  # - inp: $(emacs ugggh & echo done) - this should be a syntax error
+  #   exp: ox.cmd('emacs', 'ugggh', bg=True).cmd('echo', 'done').run(capture=True)
+- inp: $(emacs ugggh&)
+  exp: ox.cmd('emacs', 'ugggh', bg=True).out()
+- inp: $(emacs ugggh &)
+  exp: ox.cmd('emacs', 'ugggh', bg=True).out()
+- inp: $(emacs ugggh&)
+  exp: ox.cmd('emacs', 'ugggh', bg=True).out()
+# _regex:
+# - inp: '`hello`'
+#   exp: ox.Pattern('hello').regex()
+# - inp: $(ls `#[Ff]+i*LE` -l)
+#   exp: ox.cmd('ls', ox.Pattern('#[Ff]+i*LE').regex(), '-l').out()
+# - inp: print(`#.*`)
+#   exp: print(ox.Pattern('#.*').regex())
+# _prefix-regex:
+# - inp: $(ls r`[Ff]+i*LE` -l)
+#   exp: ox.cmd('ls', '[Ff]+i*LE', '-l').out()
+# - inp: $(ls f`{mypattern[0]}+` -l)
+#   exp: ox.cmd('ls', ox.Pattern('[Ff]+i*LE').regex(), '-l').run(capture=True)
+# - inp: print(@foo`.*`)
+#   exp: print(ox.Pattern('.*').invoke(foo))
 help:
-  - inp: range?
-    exp: ox.help(range)
-  - inp: range?.index?
-    exp: ox.help(ox.help(range).index)
-  - inp: range??
-    exp: ox.superhelp(range)
+- inp: range?
+  exp: ox.help(range)
+- inp: range?.index?
+  exp: ox.help(ox.help(range).index)
+- inp: range??
+  exp: ox.superhelp(range)
 paths:
-  - inp: p"/foo"
-    exp: ox.path_literal('/foo')
-_rpaths:
-  - inp: pr"/foo"
-    exp: ox.path_literal('/foo')
-  - inp: rp"/foo"
-    exp: ox.path_literal('/foo')
-  - inp: pR"/foo"
-    exp: ox.path_literal('/foo')
-  - inp: Rp"/foo"
-    exp: ox.path_literal('/foo')
+- inp: p"/foo"
+  exp: ox.path('/foo')
 _fpaths:
-  - inp: pf"/foo"
-    exp: ox.path_literal(f'/foo')
-  - inp: fp"/foo"
-    exp: ox.path_literal(f'/foo')
-  - inp: pF"/foo"
-    exp: ox.path_literal(f'/foo')
-  - inp: Fp"/foo"
-    exp: ox.path_literal(f'/foo')
-  - inp: pf"/foo{1+1}"
-    exp: ox.path_literal(f'/foo{1 + 1}')
-  - inp: fp"/foo{1+1}"
-    exp: ox.path_literal(f'/foo{1 + 1}')
-  - inp: pF"/foo{1+1}"
-    exp: ox.path_literal(f'/foo{1 + 1}')
-  - inp: Fp"/foo{1+1}"
-    exp: ox.path_literal(f'/foo{1 + 1}')
+- inp: pf"/foo"
+  exp: f'/foo'
+- inp: fp"/foo"
+  exp: f'/foo'
+- inp: pF"/foo"
+  exp: f'/foo'
+- inp: Fp"/foo"
+  exp: f'/foo'
+- inp: pf"/foo{1+1}"
+  exp: f'/foo{1 + 1}'
+- inp: fp"/foo{1+1}"
+  exp: f'/foo{1 + 1}'
+- inp: pF"/foo{1+1}"
+  exp: f'/foo{1 + 1}'
+- inp: Fp"/foo{1+1}"
+  exp: f'/foo{1 + 1}'
 
-_combine-captured:
-  - inp: '!$(which python)'
-    exp: ox.cmd(ox.cmd('which', 'python').run(capture=True)).run()
-  - inp: '!$(dirname $(which python))'
-    exp: ox.cmd('dirname', ox.cmd('which', 'python').run(capture=True)).run(capture=True).run()
+proc-py:
+- inp: $(ls {None or x})
+  exp: ox.cmd('ls', None or x).out()
 
-_proc-py:
-  - inp: "!ls {None or x}"
-    exp: ox.cmd('ls', None or x).obj()
-
-_expand:
-  - inp: "!ls a$(echo 1 2)b"
-    exp: ox.cmd('ls', ox.arg(prefix='a', value=ox.cmd('echo', '1', '2').run(capture=True), suffix='b')).run()
-  - inp: "!echo $WAKKA/place"
-    exp: ox.cmd('echo', ox.arg(value=ox.env['WAKKA'], suffix='/place')).run()
-
-_redirects:
-  - inp: "!ls >> x.py"
-    exp: "ox.cmd('ls').append_to('x.py').run()"
-  - inp: "!ls | grep wakka > x.py"
-    exp: "ox.cmd('ls').pipe('grep', 'wakka').write_to('x.py').run()"
-  - inp: "!ls | grep wakka >> x.py"
-    exp: "ox.cmd('ls').pipe('grep', 'wakka').append_to('x.py').run()"
-  - inp: $(ls > x.py)
-    exp: "ox.cmd('ls').write_to('x.py').run(capture=True)"
-  - inp: $(ls >> x.py)
-    exp: "ox.cmd('ls').append_to('x.py').run(capture=True)"
-  - inp: $(ls | grep wakka > x.py)
-    exp: "ox.cmd('ls').pipe('grep', 'wakka').write_to('x.py').run(capture=True)"
-  - inp: $(ls | grep wakka >> x.py)
-    exp: "ox.cmd('ls').pipe('grep', 'wakka').append_to('x.py').run(capture=True)"
-
-_redir_inp:
-  - inp: "!cat < input.txt"
-    exp: "ox.cmd('cat').read_from('input.txt').run()"
-  - inp: "!cat < input.txt"
-    exp: "ox.cmd('cat').read_from('input.txt').run()"
-  - inp: "!cat < /path/to/input.txt"
-    exp: "ox.cmd('cat').read_from('/path/to/input.txt').run()"
-  - inp: "$(cat < /path/to/input.txt)"
-    exp: "ox.cmd('cat').read_from('/path/to/input.txt').run(capture=True)"
-  - inp: "!</path/to/input.txt cat"
-    exp: "ox.cmd('cat').read_from('/path/to/input.txt').run()"
-  - inp: "!< /path/to/input.txt cat"
-    exp: "ox.cmd('cat').read_from('/path/to/input.txt').run()"
-  - inp: "!< /path/to/input.txt cat > /path/to/output.txt"
-    exp: "ox.cmd('cat').read_from('/path/to/input.txt').write_to('/path/to/output.txt').run()"
-_bare_proc:
-  - inp: "python manage.py migrate app 007"
-    exp: ox.cmd('python', 'manage.py', 'migrate', 'app', '007').run()
-
-_subshell:
-  - inp: "![(cat)]"
-    exp: "ox.cmd(['xonsh', '-c', 'cat\\n']).hide()"
-  - inp: "![(cat;)]"
-    exp: "ox.cmd(['xonsh', '-c', 'cat;\\n']).hide()"
-  - inp: "!(cd path; ls; cd)"
-    exp: "ox.cmd(['xonsh', '-c', 'cd path; ls; cd\\n']).hide()"
-  - inp: >
-      ![(echo "abc"; sleep 1; echo "def")]
-    exp: ox.cmd(['xonsh', '-c', 'echo "abc"; sleep 1; echo "def"\n']).hide()
-  - inp: >
-      ![(echo "abc"; sleep 1; echo "def") | grep abc]
-    exp: ox.cmd(['xonsh', '-c', 'echo "abc"; sleep 1; echo "def" | grep abc\n']).hide()
-  - inp: >
-      ![(if True:\n   ls\nelse:\n   echo not true)]
-    exp: __xonsh__.cmd(['xonsh', '-c', 'if True:\n   ls\nelse:\n   echo not true\n']).hide()
+redirects:
+- inp: $(ls > x.py)
+  exp: "ox.cmd('ls', redirects={'>': 'x.py'}).out()"
+- inp: $(ls 2> x.py)
+  exp: "ox.cmd('ls', redirects={'2>': 'x.py'}).out()"
+- inp: $(ls >> x.py)
+  exp: "ox.cmd('ls', redirects={'>>': 'x.py'}).out()"
+- inp: $(ls | grep wakka > x.py)
+  exp: "ox.cmd('ls').pipe('grep', 'wakka', redirects={'>': 'x.py'}).out()"
+- inp: $(ls | grep wakka >> x.py)
+  exp: "ox.cmd('ls').pipe('grep', 'wakka', redirects={'>>': 'x.py'}).out()"
