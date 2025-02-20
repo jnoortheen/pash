@@ -13,6 +13,7 @@ use crate::token_source::{TokenSource, TokenSourceCheckpoint};
 use crate::{Mode, ParseError, ParseErrorType, TokenKind};
 use crate::{Parsed, Tokens};
 
+mod combinators;
 mod expression;
 mod helpers;
 mod pattern;

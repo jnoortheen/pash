@@ -5,11 +5,12 @@ use ruff_python_ast::{self as ast, DictItem, Expr, ExprContext, ExprDict};
 use ruff_text_size::{Ranged, TextRange, TextSize};
 
 use crate::ParseErrorType;
-
 use crate::{
     parser::{Parser, ParserProgress},
     token::TokenKind,
 };
+
+use super::combinators::{Combinator as _, ParseResult};
 
 impl Parser<'_> {
     /// Parses a subprocess expression.
@@ -18,7 +19,7 @@ impl Parser<'_> {
         let start = self.node_start();
 
         let mut cmd = self
-            .xonsh_attr("cmd")
+            .xonsh_attr("cmd", None)
             .call(self.parse_cmd_group(closing), self.node_range(start));
         while self.at(TokenKind::Vbar) {
             let pipe_start = self.node_start();
@@ -175,7 +176,7 @@ impl Parser<'_> {
             TokenKind::Lpar => {
                 let expr = self.parse_atom().expr;
                 let range = expr.range();
-                self.xonsh_attr("list_of_strs_or_callables")
+                self.xonsh_attr("list_of_strs_or_callables", None)
                     .call0(vec![expr], range)
             }
             TokenKind::Name if self.peek() == TokenKind::String => {
@@ -183,7 +184,7 @@ impl Parser<'_> {
                 let name = Expr::from(self.parse_name());
                 let string = self.parse_strings();
                 let range = self.node_range(start);
-                self.xonsh_attr("Pattern")
+                self.xonsh_attr("Pattern", None)
                     .call0(vec![string], range)
                     .attr("invoke", range)
                     .call0(vec![name], range)
@@ -223,9 +224,9 @@ impl Parser<'_> {
     // }
 
     /// Creates a xonsh attribute expression.
-    fn xonsh_attr(&mut self, name: impl Into<Name>) -> Expr {
+    fn xonsh_attr(&mut self, name: impl Into<Name>, range: Option<TextRange>) -> Expr {
         let xonsh = self.expr_name("ox");
-        xonsh.attr(name, self.current_token_range())
+        xonsh.attr(name, range.unwrap_or(self.current_token_range()))
     }
     fn to_identifier(&self, name: impl Into<Name>) -> ast::Identifier {
         Expr::identifier(name, self.current_token_range())
@@ -243,53 +244,36 @@ impl Parser<'_> {
         string_literal(range, value)
     }
 
-    pub(super) fn parse_env_name(&mut self) -> Expr {
-        self.bump_any();
-        let attr = self.xonsh_attr("env");
+    pub(super) fn parse_env_name(&mut self) -> ParseResult<Expr> {
+        // Match $ followed by a name
+        let dollar = TokenKind::Dollar.parse(self)?;
+        let attr = self.xonsh_attr("env", Some(dollar));
         let start = self.node_start();
-        let slice = if self.at(TokenKind::Name) {
-            let range = self.current_token_range();
-            self.bump_any();
-            self.to_string_literal(range)
-        } else {
-            self.add_error(
-                ParseErrorType::OtherError(format!(
-                    "Expected an Environment variable name, got {}",
-                    self.current_token_kind()
-                )),
-                self.current_token_range(),
-            );
-            self.expr_name("Invalid")
-        };
+        let name = TokenKind::Name.parse(self)?;
+        let slice = self.to_string_literal(name);
         let ast = ast::ExprSubscript {
             value: Box::new(attr),
             slice: Box::new(slice),
             ctx: ExprContext::Load,
             range: self.node_range(start),
         };
-        Expr::Subscript(ast)
+        Ok(Expr::Subscript(ast))
     }
-    pub(super) fn parse_env_expr(&mut self) -> Expr {
-        self.bump(TokenKind::DollarLBrace);
-        let attr = self.xonsh_attr("env");
+    pub(super) fn parse_env_expr(&mut self) -> ParseResult<Expr> {
+        let dollar = TokenKind::DollarLBrace.parse(self)?;
+        let attr = self.xonsh_attr("env", Some(dollar));
 
         // Slice range doesn't include the `[` token.
         let slice_start = self.node_start();
 
-        let slice = if self.eat(TokenKind::Rbrace) {
+        if self.eat(TokenKind::Rbrace) {
             // Create an error when receiving an empty slice to parse, e.g. `x[]`
-            let slice_range = self.node_range(slice_start);
-            self.add_error(
-                ParseErrorType::OtherError(format!(
-                    "Expected an Environment variable name or expression, got {}",
-                    self.current_token_kind()
-                )),
-                slice_range,
-            );
-            self.expr_name("Invalid")
-        } else {
-            self.parse_slice(TokenKind::Rbrace)
-        };
+            return Err(ParseErrorType::OtherError(format!(
+                "Expected an Environment variable name or expression, got {}",
+                self.current_token_kind()
+            )));
+        }
+        let slice = self.parse_slice(TokenKind::Rbrace);
 
         self.bump(TokenKind::Rbrace);
 
@@ -299,17 +283,17 @@ impl Parser<'_> {
             ctx: ExprContext::Load,
             range: self.node_range(slice_start),
         };
-        Expr::Subscript(ast)
+        Ok(Expr::Subscript(ast))
     }
     pub(super) fn parse_special_strings(&mut self, expr: Expr, start: TextSize) -> Expr {
         if let Expr::StringLiteral(s) = &expr {
             if s.value.is_path() {
                 return self
-                    .xonsh_attr("path_literal")
+                    .xonsh_attr("path_literal", None)
                     .call0(vec![expr], self.node_range(start));
             } else if s.value.is_regex() {
                 return self
-                    .xonsh_attr("Pattern")
+                    .xonsh_attr("Pattern", None)
                     .call0(vec![expr], self.node_range(start))
                     .attr("regex", self.node_range(start))
                     .call_empty(self.node_range(start));
@@ -336,7 +320,7 @@ impl Parser<'_> {
             "help"
         };
         let args = vec![lhs];
-        self.xonsh_attr(method).call0(args, range)
+        self.xonsh_attr(method, None).call0(args, range)
     }
 }
 

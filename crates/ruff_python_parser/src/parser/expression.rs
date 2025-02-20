@@ -597,8 +597,12 @@ impl<'src> Parser<'src> {
                 })
             }
             TokenKind::Name => Expr::Name(self.parse_name()),
-            TokenKind::Dollar => self.parse_env_name(),
-            TokenKind::DollarLBrace => self.parse_env_expr(),
+            TokenKind::Dollar => self
+                .parse_env_name()
+                .unwrap_or_else(|e| self.add_err_and_return_none(e)),
+            TokenKind::DollarLBrace => self
+                .parse_env_expr()
+                .unwrap_or_else(|e| self.add_err_and_return_none(e)),
             TokenKind::IpyEscapeCommand => {
                 Expr::IpyEscapeCommand(self.parse_ipython_escape_command_expression())
             }
@@ -638,6 +642,13 @@ impl<'src> Parser<'src> {
         };
 
         lhs.into()
+    }
+
+    fn add_err_and_return_none(&mut self, e: ParseErrorType) -> Expr {
+        self.add_error(e, self.current_token_range());
+        Expr::from(ast::ExprNoneLiteral {
+            range: self.current_token_range(),
+        })
     }
 
     /// Parses a postfix expression in a loop until there are no postfix expressions left to parse.
