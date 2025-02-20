@@ -34,14 +34,7 @@ class LineItem:
         yaml.dump(data, self.path.open("w"))
 
 
-@pytest.fixture
-def snapped(request):
-    if request.config.getoption("--update-snaps"):
-        request.param.write = True
-    return request.param
-
-
-def get_cases(path: Path):
+def get_cases(path: Path, write=False):
     from ruamel.yaml import YAML
 
     yaml = YAML()
@@ -52,16 +45,18 @@ def get_cases(path: Path):
             kwargs = dict()
             if case.startswith("_"):
                 kwargs["marks"] = pytest.mark.xfail
-            li = LineItem(path, item.get("exp", ""), case, idx, inp=item["inp"])
+            li = LineItem(
+                path, item.get("exp", ""), case, idx, inp=item["inp"], write=write
+            )
             yield pytest.param(li, id=f"{path.stem}-{case}-{idx}", **kwargs)
 
 
-def get_files_from_markers(markers: list):
+def get_files_from_markers(markers: list, write=False):
     for mark in markers:
         for path in mark.args:
             if not os.path.isfile(path):
                 raise FileNotFoundError(f"File {path} does not exist")
-            yield from get_cases(Path(path))
+            yield from get_cases(Path(path), write)
 
 
 def pytest_generate_tests(metafunc):
@@ -70,8 +65,8 @@ def pytest_generate_tests(metafunc):
         markers = [mark for mark in metafunc.definition.iter_markers(name="yaml_snaps")]
         if not markers:
             return
-
-        test_cases = list(get_files_from_markers(markers))
+        write = metafunc.config.getoption("--update-snaps")
+        test_cases = list(get_files_from_markers(markers, write))
         metafunc.parametrize("snap", test_cases)
 
 
