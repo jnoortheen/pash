@@ -3,7 +3,7 @@ env:
   exp: ox.env['WAKKA']
 - inp: ${None or $JAWAKA}
   exp: ox.env[None or ox.env['JAWAKA']]
-
+# todo: os.Cmd('exe').wpath("*.jpg -arg").arg("a string").run(capture=True, bg=True)
 captured:
 - inp: $(cmd sub-cmd --opt)
   exp: ox.cmd('cmd', 'sub-cmd', '--opt').out()
@@ -47,21 +47,21 @@ paths:
   exp: ox.path('/foo')
 _fpaths:
 - inp: pf"/foo"
-  exp: f'/foo'
+  exp: ox.path(f'/foo')
 - inp: fp"/foo"
-  exp: f'/foo'
+  exp: ox.path(f'/foo')
 - inp: pF"/foo"
-  exp: f'/foo'
+  exp: ox.path(f'/foo')
 - inp: Fp"/foo"
-  exp: f'/foo'
+  exp: ox.path(f'/foo')
 - inp: pf"/foo{1+1}"
-  exp: f'/foo{1 + 1}'
+  exp: ox.path(f'/foo{1 + 1}')
 - inp: fp"/foo{1+1}"
-  exp: f'/foo{1 + 1}'
+  exp: ox.path(f'/foo{1 + 1}')
 - inp: pF"/foo{1+1}"
-  exp: f'/foo{1 + 1}'
+  exp: ox.path(f'/foo{1 + 1}')
 - inp: Fp"/foo{1+1}"
-  exp: f'/foo{1 + 1}'
+  exp: ox.path(f'/foo{1 + 1}')
 
 proc-py:
 - inp: $(ls {None or x})
@@ -69,12 +69,12 @@ proc-py:
 
 redirects:
 - inp: $(ls > x.py)
-  exp: "ox.cmd('ls', redirects={'>': 'x.py'}).out()"
+  exp: "ox.cmd('ls', writes={'out': 'x.py'}).out()"
 - inp: $(ls 2> x.py)
-  exp: "ox.cmd('ls', redirects={'2>': 'x.py'}).out()"
+  exp: "ox.cmd('ls', writes={2: 'x.py'}).out()"
 - inp: $(ls >> x.py)
-  exp: "ox.cmd('ls', redirects={'>>': 'x.py'}).out()"
+  exp: "ox.cmd('ls', appends={'out': 'x.py'}).out()"
 - inp: $(ls | grep wakka > x.py)
-  exp: "ox.cmd('ls').pipe('grep', 'wakka', redirects={'>': 'x.py'}).out()"
+  exp: "ox.cmd('ls').pipe('grep', 'wakka', writes={'out': 'x.py'}).out()"
 - inp: $(ls | grep wakka >> x.py)
-  exp: "ox.cmd('ls').pipe('grep', 'wakka', redirects={'>>': 'x.py'}).out()"
+  exp: "ox.cmd('ls').pipe('grep', 'wakka', appends={'out': 'x.py'}).out()"

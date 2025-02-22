@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::vec;
 
 use ruff_python_ast::name::Name;
@@ -11,6 +12,13 @@ use crate::{
 };
 
 use super::combinators::{Combinator as _, ParseResult};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum RedirectType {
+    Write,
+    Append,
+    Read,
+}
 
 impl Parser<'_> {
     /// Parses a subprocess expression.
@@ -47,7 +55,7 @@ impl Parser<'_> {
         let start = self.node_start();
         let mut cmds = Vec::new();
         let mut keywords = Vec::new();
-        let mut redirects = Vec::new();
+        let mut redirects = HashMap::new();
         let mut progress = ParserProgress::default();
 
         loop {
@@ -57,20 +65,32 @@ impl Parser<'_> {
                     break;
                 }
                 TokenKind::Vbar => break,
-                TokenKind::Int | TokenKind::Amper if matches!(self.peek(), TokenKind::Greater) => {
-                    let result = self.parse_redirection1(closing);
-                    redirects.push(result);
+                TokenKind::Int | TokenKind::Amper
+                    if matches!(
+                        self.peek(),
+                        TokenKind::Greater | TokenKind::RightShift | TokenKind::Less
+                    ) =>
+                {
+                    self.parse_redirection_with_src(
+                        closing,
+                        &mut redirects,
+                        Some(self.current_token_kind()),
+                    );
                 }
                 TokenKind::Name
-                    if matches!(self.peek(), TokenKind::Greater)
-                        && REDIR_NAMES.contains(&&self.source[self.current_token_range()]) =>
+                    if matches!(
+                        self.peek(),
+                        TokenKind::Greater | TokenKind::RightShift | TokenKind::Less
+                    ) && REDIR_NAMES.contains(&&self.source[self.current_token_range()]) =>
                 {
-                    let result = self.parse_redirection1(closing);
-                    redirects.push(result);
+                    self.parse_redirection_with_src(
+                        closing,
+                        &mut redirects,
+                        Some(self.current_token_kind()),
+                    );
                 }
                 TokenKind::RightShift | TokenKind::Greater | TokenKind::Less => {
-                    let result = self.parse_redirection(None, closing);
-                    redirects.push(result);
+                    self.parse_redirection_with_src(closing, &mut redirects, None);
                 }
                 TokenKind::Amper if self.peek() == closing => {
                     keywords.push(ast::Keyword {
@@ -86,18 +106,25 @@ impl Parser<'_> {
             }
         }
 
-        if let Some(first) = redirects.first() {
-            if let Some(last) = redirects.last() {
-                let range = TextRange::new(first.range().start(), last.range().end());
-                let expr = Expr::from(ExprDict {
-                    range,
-                    items: redirects,
-                });
-                keywords.push(ast::Keyword {
-                    arg: Some(self.to_identifier("redirects")),
-                    value: expr,
-                    range: self.node_range(start),
-                });
+        for (typ, redirects) in redirects {
+            let kw_name = match typ {
+                RedirectType::Write => "writes",
+                RedirectType::Append => "appends",
+                RedirectType::Read => "reads",
+            };
+            if let Some(first) = redirects.first() {
+                if let Some(last) = redirects.last() {
+                    let range = TextRange::new(first.range().start(), last.range().end());
+                    let expr = Expr::from(ExprDict {
+                        range,
+                        items: redirects,
+                    });
+                    keywords.push(ast::Keyword {
+                        arg: Some(self.to_identifier(kw_name)),
+                        value: expr,
+                        range: self.node_range(start),
+                    });
+                }
             }
         }
 
@@ -150,26 +177,46 @@ impl Parser<'_> {
 
         self.to_string_literal(TextRange::new(start, offset))
     }
-    fn parse_redirection1(&mut self, closing: TokenKind) -> DictItem {
-        let start = self.node_start();
-        self.bump_any(); // skip the name or number
+    fn parse_redirect_type(&mut self) -> RedirectType {
+        let typ = match self.current_token_kind() {
+            TokenKind::Greater => RedirectType::Write,
+            TokenKind::RightShift => RedirectType::Append,
+            TokenKind::Less => RedirectType::Read,
+            _ => unreachable!(),
+        };
         self.bump_any(); // skip the `>`
-        let range = self.node_range(start);
-        self.parse_redirection(Some(range), closing)
+        typ
     }
-    fn parse_redirection(&mut self, key_range: Option<TextRange>, closing: TokenKind) -> DictItem {
-        let range = if let Some(key_range) = key_range {
-            key_range
+    fn parse_redirection_with_src(
+        &mut self,
+        closing: TokenKind,
+        redirects: &mut HashMap<RedirectType, Vec<DictItem>>,
+        src: Option<TokenKind>,
+    ) {
+        let src = if let Some(src) = src {
+            match src {
+                TokenKind::Int => self.parse_atom().expr,
+                TokenKind::Name => Expr::from(self.parse_name()),
+                TokenKind::Amper => {
+                    let val = string_literal(self.current_token_range(), "all".to_string());
+                    self.bump_any(); // skip the `&`
+                    val
+                }
+                _ => unreachable!(),
+            }
         } else {
-            let range = self.current_token_range();
-            self.bump_any();
-            range
+            string_literal(self.current_token_range(), "out".to_string())
         };
 
-        let key = Some(self.to_string_literal(range));
-        let value = self.parse_proc_single(closing);
-
-        DictItem { key, value }
+        let typ = self.parse_redirect_type();
+        let dest = self.parse_proc_single(closing);
+        redirects
+            .entry(typ)
+            .or_insert_with(Vec::new)
+            .push(DictItem {
+                key: Some(src),
+                value: dest,
+            });
     }
     pub(super) fn parse_decorator_or_interpolation(&mut self) -> Expr {
         if self.at(TokenKind::Lbrace) {
