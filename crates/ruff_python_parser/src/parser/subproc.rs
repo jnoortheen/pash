@@ -196,27 +196,26 @@ impl Parser<'_> {
         let src = if let Some(src) = src {
             match src {
                 TokenKind::Int => self.parse_atom().expr,
-                TokenKind::Name => Expr::from(self.parse_name()),
+                TokenKind::Name => {
+                    let name_expr = self.parse_name();
+                    self.to_string_literal(name_expr.range())
+                }
                 TokenKind::Amper => {
-                    let val = string_literal(self.current_token_range(), "all".to_string());
-                    self.bump_any(); // skip the `&`
-                    val
+                    let val = TokenKind::Amper.parse(self).unwrap();
+                    self.to_string_literal(val.range())
                 }
                 _ => unreachable!(),
             }
         } else {
-            string_literal(self.current_token_range(), "out".to_string())
+            string_literal(self.current_token_range(), String::new())
         };
 
         let typ = self.parse_redirect_type();
         let dest = self.parse_proc_single(closing);
-        redirects
-            .entry(typ)
-            .or_insert_with(Vec::new)
-            .push(DictItem {
-                key: Some(src),
-                value: dest,
-            });
+        redirects.entry(typ).or_default().push(DictItem {
+            key: Some(src),
+            value: dest,
+        });
     }
     pub(super) fn parse_decorator_or_interpolation(&mut self) -> Expr {
         if self.at(TokenKind::Lbrace) {

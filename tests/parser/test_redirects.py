@@ -1,24 +1,24 @@
 import pytest
 
 
-@pytest.mark.parametrize(
-    "case", ["", "o", "out", "1", "e", "err", "2", "a", "all", "&"]
-)
+@pytest.mark.parametrize("case", ["", "o", "out", 1, "e", "err", 2, "a", "all", "&"])
 def test_redirect_output(case, cmd):
+    writes = {"writes": {case: "test.txt"}}
     assert cmd(f'$[echo "test" {case}> test.txt]') == [
         "echo",
         "test",
-        {f"{case}>": "test.txt"},
-    ], f'$[echo "test" {case}> test.txt]'
+        writes,
+    ]
+    reads = {"reads": {"": "input.txt"}}
     assert cmd(f'$[< input.txt echo "test" {case}> test.txt]') == [
         "echo",
         "test",
-        {"<": "input.txt", f"{case}>": "test.txt"},
+        writes | reads,
     ]
     assert cmd(f'$[echo "test" {case}> test.txt < input.txt]') == [
         "echo",
         "test",
-        {"<": "input.txt", f"{case}>": "test.txt"},
+        writes | reads,
     ]
 
 
@@ -38,30 +38,28 @@ def test_redirect_output(case, cmd):
         "2>&1",
     ],
 )
-@pytest.mark.parametrize("o", ["", "o", "out", "1"])
+@pytest.mark.parametrize("o", ["", "o", "out", 1])
 def test_redirect_error_to_output(r, o, cmd):
+    err, err_to = r.split(">")
+    if err.isdigit():
+        err = int(err)
+    writes = {"writes": {o: "test.txt", err: err_to}}
     assert cmd(f'$[echo "test" {r} {o}> test.txt]') == [
         "echo",
         "test",
-        {f"{o}>".strip(): "test.txt", r.split(">")[0] + ">": r.split(">")[1]},
+        writes,
     ]
+
+    reads = {"reads": {"": "input.txt"}}
     assert cmd(f'$[< input.txt echo "test" {r} {o}> test.txt]') == [
         "echo",
         "test",
-        {
-            f"{o}>".strip(): "test.txt",
-            r.split(">")[0] + ">": r.split(">")[1],
-            "<": "input.txt",
-        },
+        writes | reads,
     ]
     assert cmd(f'$[echo "test" {r} {o}> test.txt < input.txt]') == [
         "echo",
         "test",
-        {
-            f"{o}>".strip(): "test.txt",
-            r.split(">")[0] + ">": r.split(">")[1],
-            "<": "input.txt",
-        },
+        writes | reads,
     ]
 
 
@@ -81,28 +79,25 @@ def test_redirect_error_to_output(r, o, cmd):
         "1>&2",
     ],
 )
-@pytest.mark.parametrize("e", ["e", "err", "2"])
+@pytest.mark.parametrize("e", ["e", "err", 2])
 def test_redirect_output_to_error(r, e, cmd):
+    err, err_to = r.split(">")
+    if err.isdigit():
+        err = int(err)
+    writes = {"writes": {e: "test.txt", err: err_to}}
     assert cmd(f'$[echo "test" {r} {e}> test.txt]') == [
         "echo",
         "test",
-        {f"{e}>": "test.txt", r.split(">")[0] + ">": r.split(">")[1]},
+        writes,
     ]
+    reads = {"reads": {"": "input.txt"}}
     assert cmd(f'$[< input.txt echo "test" {r} {e}> test.txt]') == [
         "echo",
         "test",
-        {
-            f"{e}>": "test.txt",
-            r.split(">")[0] + ">": r.split(">")[1],
-            "<": "input.txt",
-        },
+        writes | reads,
     ]
     assert cmd(f'$[echo "test" {r} {e}> test.txt < input.txt]') == [
         "echo",
         "test",
-        {
-            f"{e}>": "test.txt",
-            r.split(">")[0] + ">": r.split(">")[1],
-            "<": "input.txt",
-        },
+        writes | reads,
     ]

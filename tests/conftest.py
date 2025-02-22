@@ -77,7 +77,9 @@ def xsh():
             return self
 
         def _call(self, mode: str):
-            self.result = self.args + list(self.kwargs.values())
+            self.result = self.args
+            if self.kwargs:
+                self.result.append(self.kwargs)
             self.calls.append(mode)
             return self.result
 
@@ -133,7 +135,11 @@ def exec_code(xsh, parse_string):
         xsh.env = xenv or {}
         globs = {"ox": xsh}
         locs.update(globs)
-        exec(bytecode, globs, locs)
+        try:
+            exec(bytecode, globs, locs)
+        except Exception:
+            print(f"error execing {ast.unparse(xsh.obs)=}")
+            raise
         return xsh
 
     return factory

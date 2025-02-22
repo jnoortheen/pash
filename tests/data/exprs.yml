@@ -69,12 +69,12 @@ proc-py:
 
 redirects:
 - inp: $(ls > x.py)
-  exp: "ox.cmd('ls', writes={'out': 'x.py'}).out()"
+  exp: "ox.cmd('ls', writes={'': 'x.py'}).out()"
 - inp: $(ls 2> x.py)
   exp: "ox.cmd('ls', writes={2: 'x.py'}).out()"
 - inp: $(ls >> x.py)
-  exp: "ox.cmd('ls', appends={'out': 'x.py'}).out()"
+  exp: "ox.cmd('ls', appends={'': 'x.py'}).out()"
 - inp: $(ls | grep wakka > x.py)
-  exp: "ox.cmd('ls').pipe('grep', 'wakka', writes={'out': 'x.py'}).out()"
+  exp: "ox.cmd('ls').pipe('grep', 'wakka', writes={'': 'x.py'}).out()"
 - inp: $(ls | grep wakka >> x.py)
-  exp: "ox.cmd('ls').pipe('grep', 'wakka', appends={'out': 'x.py'}).out()"
+  exp: "ox.cmd('ls').pipe('grep', 'wakka', appends={'': 'x.py'}).out()"
