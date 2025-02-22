@@ -30,9 +30,10 @@ dev = [
     "ruamel.yaml",
     "pytest-yaml-snaps",
     "pexpect; sys.platform != 'win32'",
-    "wexpect; sys.platform == 'win32'"
+    "wexpect; sys.platform == 'win32'",
 ]
 [tool.maturin]
+python-source = "pysrc"
 features = ["pyo3/extension-module"]
 module-name = "oxipy._oxipy"
 

@@ -196,6 +196,9 @@ jobs:
           dist-name: wheels-linux-x86_64
       - name: test with pytest
         run: uv run --no-sync pytest
+      # - name: Setup tmate session
+      #   if: ${{ failure() }}
+      #   uses: mxschmitt/action-tmate@v3
       - uses: CodSpeedHQ/action@v3
         if: matrix.python-version == '3.13'
         with:
