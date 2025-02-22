@@ -1,5 +1,6 @@
 import subprocess
 from oxipy import __main__
+import sys
 
 
 def test_main(capfd):
@@ -14,7 +15,7 @@ def test_main(capfd):
 def test_oxcli_help():
     # Spawn the oxcli command with --help
     child = subprocess.run(
-        ["python", "-m", "oxipy", "--help"], capture_output=True, check=True
+        [sys.executable, "-m", "oxipy", "--help"], capture_output=True, check=True
     )
     output = child.stdout.decode("utf-8")
     assert "Usage" in output
